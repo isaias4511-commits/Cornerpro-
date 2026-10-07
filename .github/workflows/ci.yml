@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Harness (jsdom) + contrato do parametro min
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias (lockfile)
+        run: npm ci
+
+      - name: npm test (harness + contrato cliente x proxy)
+        run: npm test
+
+      - name: Guardar CSVs de exemplo gerados pelo harness
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exemplos-csv
+          path: '*-exemplo.csv'
+          if-no-files-found: ignore
+          retention-days: 7
+
+  e2e:
+    name: Chromium headless - matriz do parametro min
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: unit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias (lockfile)
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Matriz do parametro min em navegador real
+        run: npm run test:e2e
+
+      - name: Guardar o log do e2e
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-log
+          path: e2e/min-e2e.log
+          if-no-files-found: ignore
+          retention-days: 7

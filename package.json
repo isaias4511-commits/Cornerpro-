@@ -1,0 +1,16 @@
+{
+  "name": "cornerpro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CornerPro — painel de escanteios; harness jsdom + contrato ?min= (cliente x proxy) + e2e Chromium",
+  "scripts": {
+    "test": "node t8.js && node wtest6.mjs",
+    "test:harness": "node t8.js",
+    "test:min": "node wtest6.mjs",
+    "test:e2e": "node e2e/min-e2e.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.0",
+    "playwright": "1.47.2"
+  }
+}

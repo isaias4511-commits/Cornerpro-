@@ -1,0 +1,840 @@
+PASS | cache local: 2 utilizaveis de 4, com lista de quem falta => "{\"leagues\":4,\"usable\":2,\"min\":8,\"samples\":24,\"max\":10,\"missing\":[{\"name\":\"Serie C\",\"n\":3,\"need\":5},{\"name\":\"League One\",\"n\":2,\"need\":6}],\"needMore\":2}"
+PASS | A71 utilizavel (n=10 >= 8) => true
+PASS | A999 NAO utilizavel (n=3 < 8) => false
+PASS | A135 NAO utilizavel (n=2 < 8) => false
+PASS | busca da media por NOME tambem funciona => 10
+PASS | KPI só soma escanteios com fonte => "22"
+PASS | barra avisa jogos sem fonte => true
+PASS | barra mostra médias de liga em cache => true
+PASS | merge do board no cache local => "135,140,71,999"
+PASS | detalhe A71 marcado como média da liga (selo n=10) => true
+PASS | detalhe A71 tem números de escanteio => "[6,4]"
+PASS | A999 (n=3) NÃO recebe número => true
+PASS | A999 explica que nada foi inventado => true
+PASS | A999 mostra — nos escanteios => true
+PASS | A135 sem média utilizável (n=2) não recebe número => true
+PASS | linha ao vivo usa — quando não há escanteio => true
+PASS | linha A71 mostra total real => true
+PASS | ranking do servidor usa os totais recebidos => true
+PASS | ranking do servidor mostra o total do jogo => true
+PASS | ranking local conta jogos sem fonte => true
+PASS | ranking local nao inventa barra para quem nao tem fonte => true
+PASS | tabela marca a liga de origem do valor => true
+PASS | tabela usa — quando não há fonte => true
+PASS | rodapé explica a regra do preenchimento => true
+PASS | gráfico desenha pontos => true
+PASS | gráfico rotula os dias => true
+PASS | minimo padrao = 8 => 8
+PASS | selo informa quantas partidas faltam => true
+PASS | barra cita a liga mais proxima do minimo => true
+PASS | painel abre com o campo de amostra vazio (padrao) => ""
+PASS | salvar aplica o minimo digitado => 2
+PASS | liga com n=3 passa a ser utilizavel com minimo 2 => true
+PASS | jogo antes em branco agora recebe numero => true
+PASS | barra passa a mostrar o minimo em uso => true
+PASS | minimo e limitado a 50 => 50
+PASS | com minimo 50 nada novo e preenchido => true
+PASS | valor invalido volta ao padrao 8 => 8
+PASS | CFG.minSamples persistido => 8
+PASS | sem preenchimento por media quando o minimo e 8 => true
+PASS | coluna Liga de origem no cabecalho => true
+PASS | mesma liga sinalizada com o n da liga => true
+PASS | media de outra competicao sinalizada => true
+PASS | media juntando varias ligas sinalizada => true
+PASS | time sem amostra aparece como sem media => true
+PASS | liga de origem abaixo do minimo sinalizada => true
+PASS | bandeira do pais na coluna de origem => true
+PASS | origem pronta do servidor usada como veio => true
+PASS | valor da media segue marcado com ≈ => true
+PASS | selo ambiguo antigo saiu da tabela => true
+ORIGEM | Inter :: 🇪🇸 La Liga outra liga · n=9 || Palmeiras :: 🇪🇸 La Liga outra liga · n=9 || Flamengo :: 🇮🇹 Serie A me ma liga · n=10 || Gremio :: 🇮🇹 Serie A 2 liga  · n=10 || Santos :: 🇮🇹 Serie C abaixo do mínimo · n=3 || Vasco :: 🇮🇹 Serie C  em média
+PASS | rodape resume a origem => true
+PASS | rodape conta 2 na mesma liga => true
+PASS | rodape conta 2 em outra competicao => true
+PASS | rodape conta 1 em varias => true
+PASS | rodape conta 1 sem media => true
+PASS | ordenar por liga de origem sai em ordem alfabetica => true
+ORDEM POR LIGA | ["La Liga","La Liga","Serie A","Serie A","Serie C","Serie C"]
+PASS | 3 grupos (uma liga de origem cada) => 3
+PASS | grupos ordenados por tamanho/alfabetica => "[\"La Liga\",\"Serie A\",\"Serie C\"]"
+PASS | cabecalho do grupo mostra a contagem de times => "[\"2 time(s)\",\"2 time(s)\",\"2 time(s)\"]"
+PASS | cabecalho do grupo traz a amostra da liga => true
+PASS | cabecalho do grupo traz a media por jogo => true
+PASS | cabecalho avisa liga abaixo do minimo => true
+PASS | times aparecem dentro do grupo da sua origem => 6
+PASS | linhas de La Liga sao as duas esperadas => "[\"Inter\",\"Palmeiras\"]"
+PASS | grupo destaca quem veio de outra competicao => true
+PASS | total "da propria liga" soma 2 => 2
+PASS | total "de outra competicao" soma 3 => 3
+PASS | total "sem media" soma 1 => 1
+PASS | grupo destaca quem ficou sem media => true
+GRUPOS | ▼ 🇪🇸La Liga 2 time(s) 2 de outra competição amostra da liga n=9 · 9.5/jogo || ▼ 🇮🇹Serie A 2 time(s) 1 de outra competição 1 da própria liga amostra da liga n=10 · 10/jogo || ▼ 🇮🇹Serie C 2 time(s) 1 da própria liga 1 sem média amostra da liga n=3 · 8/jogo · abaixo do mínimo de 8
+PASS | ordenacao vale dentro de cada grupo (decrescente, "—" no fim) => true
+PASS | grupo Serie C mantem o "—" por ultimo => "[4,null]"
+ORDEM POR GRUPO | {"La Liga":[10,9],"Serie A":[11,8],"Serie C":[4,null]}
+PASS | ordenar por nome reordena dentro de cada grupo => "[\"Flamengo\",\"Gremio\"]"
+PASS | cabecalho continua com 3 grupos apos ordenar => 3
+PASS | recolher um grupo esconde so as linhas dele => 4
+PASS | os outros grupos seguem visiveis => 0
+PASS | grupo recolhido troca o caret para ▶ => "▶"
+PASS | cabecalhos continuam todos visiveis => 3
+PASS | expandir traz as linhas de volta => 6
+PASS | time sem liga de origem nao quebra a tabela => 4
+PASS | grupo "Origem desconhecida" criado => "Origem desconhecida"
+PASS | grupo desconhecido fica por ultimo => true
+PASS | grupo desconhecido explica a situacao => true
+PASS | rodape conta 4 grupos => true
+PASS | tabela volta a 3 grupos => 3
+PASS | busca por time continua retornando jogos => true
+PASS | busca por liga continua retornando a liga => true
+PASS | busca por termo inexistente nao quebra => true
+PASS | filtro de liga nao mexe na tabela agrupada => 6
+PASS | tabela agrupada segue com 3 grupos apos o filtro => 3
+PASS | uma linha de totais por grupo => 3
+PASS | linha de totais tem as 9 celulas da tabela => 9
+PASS | La Liga: soma de jogos => "4"
+PASS | La Liga: soma de escanteios a favor => "19"
+PASS | La Liga: soma de escanteios contra => "9"
+PASS | La Liga: casa e media rotulada => "média10"
+PASS | La Liga: fora e media rotulada => "média9"
+PASS | La Liga: soma de gols pro => "6"
+PASS | La Liga: soma de gols contra => "9"
+PASS | La Liga: quantos tem escanteio => "2/2 com escanteio"
+PASS | rotulo do grupo mantem a contagem => "Σ Totais · 2 time(s)"
+PASS | Serie A: soma de jogos => "4"
+PASS | Serie A: soma de escanteios a favor (11x10 + 8x2) => "126"
+PASS | Serie A: soma de escanteios contra (5x10 + 4x2) => "58"
+PASS | Serie A: casa = media de 12 e 8 => "média10"
+PASS | Serie A: gols pro somados (2,5x2 + 1,5x2) => "8"
+PASS | Serie C: soma de escanteios a favor => "4"
+PASS | Serie C: fora sem jogo vira travessao => "—"
+PASS | Serie C: quantos tem escanteio => "1/2 com escanteio"
+PASS | tooltip explica a media ponderada => true
+PASS | tooltip informa a base da media => true
+PASS | tooltip da media simples de casa => true
+PASS | tooltip do total de jogos => true
+PASS | tooltip da coluna J descreve a soma => true
+PASS | tooltip de gols descreve a soma e a media => true
+PASS | totais nao contam como linha de time => 6
+PASS | totais nao contam como cabecalho de grupo => 3
+PASS | linhas de totais ficam depois do cabecalho do grupo => true
+PASS | recolher mantem a linha de totais => 3
+PASS | recolher ainda esconde as linhas de time => 4
+PASS | totais do grupo recolhido seguem corretos => "126"
+PASS | 4 linhas de totais com o grupo desconhecido => 4
+PASS | grupo sem escanteio nao vira zero => "—"
+PASS | grupo sem escanteio explica no tooltip => true
+PASS | grupo sem escanteio ainda soma jogos e gols => "1/1"
+PASS | rodape explica a linha de totais => true
+PASS | tabela volta a 3 linhas de totais => 3
+TOTAIS | [["Σ Totais · 2 time(s)","2/2 com escanteio","4","19","9","média10","média9","6","9"],["Σ Totais · 2 time(s)","2/2 com escanteio","4","126","58","média10","média9","8","3"],["Σ Totais · 2 time(s)","1/2 com escanteio","2","4","7","média4","—","1","4"]]
+PASS | existe exatamente uma linha de total geral => 1
+PASS | total geral tem as 9 celulas => 9
+PASS | rotulo identifica o total geral => "Σ Total geral · 6 time(s) em 3 grupo(s)"
+PASS | total geral conta times com escanteio (Vasco nao tem) => "5/6 com escanteio"
+PASS | total geral soma jogos (2+3+2+1+1+1) => "10"
+PASS | total geral soma escanteios a favor (19+126+4) => "149"
+PASS | total geral soma escanteios contra (9+58+7) => "74"
+PASS | total geral soma gols pro (5+3+3+0+1+3) => "15"
+PASS | total geral soma gols contra (1+9+2+2+2+0) => "16"
+PASS | total geral usa classe grandtotal => "grandtotal"
+PASS | total geral fica como ULTIMA linha da tabela => true
+PASS | total geral vem depois de todos os grupos => true
+PASS | casa e media simples dos 4 times com jogos em casa (12+8+4+10)/4 => "média8.5"
+PASS | fora e media simples dos 3 times com jogos fora (10+9+8)/3 => "média9"
+PASS | tooltip da media ponderada do total geral => true
+PASS | tooltip informa a base do total geral => true
+PASS | tooltip deixa claro que casa e media simples => true
+PASS | tooltip do total geral cita todos os grupos => true
+PASS | tooltip da coluna J fala de todos os grupos => true
+PASS | total geral de jogos = soma das linhas de grupo => 10
+PASS | total geral de esc. pro = soma das linhas de grupo => 149
+PASS | total geral de esc. contra = soma das linhas de grupo => 74
+PASS | total geral de gols pro = soma das linhas de grupo => 15
+PASS | total geral de gols contra = soma das linhas de grupo => 16
+PASS | recolher grupo nao muda o total geral => "[\"5/6 com escanteio\",\"10\",\"149\",\"74\",\"média8.5\",\"média9\",\"15\"]"
+PASS | total geral segue sendo a ultima linha com grupo recolhido => true
+PASS | ordenar (asc) nao altera o total geral => "[\"5/6 com escanteio\",\"10\",\"149\",\"74\",\"média8.5\",\"média9\",\"15\"]"
+PASS | total geral continua por ultimo apos ordenar => true
+PASS | sem times nao renderiza linha de total geral => 0
+PASS | sem times mostra o estado vazio => true
+PASS | sem times nao aparece NaN => true
+PASS | tabela volta com a linha de total geral => 1
+PASS | nenhum NaN na tabela completa => true
+PASS | rodape explica o total geral => true
+PASS | media simples das medias seria 8.4 (diferente) => 8.4
+PASS | a linha usa a media PONDERADA (149/15 = 9.9), nao 8.4 => true
+PASS | media ponderada difere da media de medias => true
+PASS | total geral nao tem NaN em nenhuma celula => true
+TOTAL GERAL | [9,"Σ Total geral · 6 time(s) em 3 grupo(s)","5/6 com escanteio","10","149","74","média8.5","média9","15","16"]
+MEDIAS | simples=8.4 ponderada=9.9
+PASS | botao de exportacao existe na secao => true
+PASS | botao tem rotulo CSV => "⤓ CSV"
+PASS | teamCsv devolve texto => "string"
+PASS | CSV comeca com BOM (Excel reconhece UTF-8) => 65279
+PASS | linhas do CSV: 1 cabecalho + 3 grupos + 6 times + 3 totais + 1 geral => 14
+PASS | cabecalho tem 12 colunas => 12
+PASS | todas as linhas tem 12 colunas => true
+PASS | cabecalho nomeia as colunas esperadas => "Tipo|Grupo (liga de origem)|#|Time|Origem do valor|J|Esc. pró|Esc. contra|Casa (média simples)|Fora (média simples)|Gols pró|Gols contra"
+PASS | 3 linhas de grupo => 3
+PASS | 6 linhas de time => 6
+PASS | 3 linhas de total do grupo => 3
+PASS | 1 linha de total geral => 1
+PASS | ordem dos grupos igual a da tela => "[\"La Liga\",\"Serie A\",\"Serie C\"]"
+PASS | linhas de time ficam sob o seu grupo => "[\"Inter\",\"Palmeiras\"]"
+PASS | total geral no CSV: tipo e grupo => "Total geral|Todos os grupos (3)"
+PASS | total geral no CSV: times => "6 time(s)"
+PASS | total geral no CSV: com escanteio => "5/6 com escanteio"
+PASS | total geral no CSV: jogos => "10"
+PASS | total geral no CSV: escanteios pro/contra => "149/74"
+PASS | total geral no CSV: casa e fora sao medias => "8,5/9"
+PASS | total geral no CSV: gols pro/contra => "15/16"
+PASS | total do grupo La Liga no CSV => "La Liga 4 19 9"
+PASS | total do grupo Serie A no CSV => "Serie A 4 126 58"
+PASS | total do grupo Serie C no CSV => "Serie C 2 4 7"
+PASS | CSV usa virgula decimal (8,5) e nao ponto => true
+PASS | CSV marca escanteio de outra liga => true
+PASS | CSV marca escanteio da propria liga => true
+PASS | CSV marca liga abaixo do minimo => true
+PASS | CSV marca time sem media => true
+PASS | CSV sem NaN => true
+PASS | CSV universais: toda linha entre aspas => 14
+PASS | CSV universais: toda linha abre e fecha em aspas => true
+PASS | CSV universais: so a 1a linha tem BOM => 1
+PASS | CSV universais: nenhuma linha com aspas soltas => true
+PASS | CSV preserva acento (média, pró, contra) => true
+PASS | time sem escanteio: celulas vazias no CSV => "|||"
+PASS | time sem escanteio mantem jogos e gols => "1|0|2"
+PASS | CSV acompanha a ordenacao (asc por Esc. pro) => "[\"Gremio\",\"Flamengo\"]"
+PASS | total geral do CSV nao muda com a ordenacao => "149/74"
+PASS | grupo recolhido nao some do CSV => 6
+PASS | CSV nao depende do recolhimento (total geral igual) => "149"
+PASS | exportTeamCsv devolve o mesmo CSV => true
+PASS | clicar no botao nao quebra => 1
+PASS | nome do arquivo usa a data de hoje => "medias-por-time-2026-10-04.csv"
+PASS | sem medias nao gera CSV => null
+PASS | sem medias o exportador avisa e nao quebra => null
+PASS | CSV volta depois de restaurar os dados => "string"
+PASS | rodape cita o botao de CSV => true
+CSV CABECALHO | Tipo ; Grupo (liga de origem) ; # ; Time ; Origem do valor ; J ; Esc. pró ; Esc. contra ; Casa (média simples) ; Fora (média simples) ; Gols pró ; Gols contra
+CSV TOTAL GERAL | Total geral ; Todos os grupos (3) ;  ; 6 time(s) ; 5/6 com escanteio ; 10 ; 149 ; 74 ; 8,5 ; 9 ; 15 ; 16
+CSV TAMANHO | 1247 chars | 14 linhas
+PASS | botao de exportacao do ranking existe => true
+PASS | botao do ranking tem rotulo CSV => "⤓ CSV"
+PASS | secao do ranking tem o botao no titulo => true
+PASS | ranking do servidor: 1 cabecalho + 2 jogos + total => 4
+PASS | cabecalho do ranking => "Posição|Jogo|Liga|Situação|Escanteios|Base"
+PASS | ranking do servidor preserva o rotulo => "Alfa × Beta"
+PASS | ranking do servidor: liga => "Serie A"
+PASS | ranking do servidor: escanteios reais => "10"
+PASS | ranking do servidor: situacao ao vivo => "ao vivo"
+PASS | ranking do servidor: base informada => "contagem real de escanteios"
+PASS | jogo sem estatistica sai VAZIO (nunca 0) => ""
+PASS | jogo sem estatistica explica o vazio => "sem estatística de escanteio — nada foi inventado"
+PASS | jogo sem estatistica nao recebe posicao => ""
+PASS | total do ranking: jogos => "Total (2 jogo(s))"
+PASS | total do ranking: com escanteio => "1/2 com escanteio"
+PASS | total do ranking: soma => "10"
+PASS | ranking CSV comeca com BOM => 65279
+PASS | ranking CSV anota a origem (proxy) => true
+PASS | ranking CSV sem NaN => -1
+PASS | rankCsv devolve o mesmo texto em 2 chamadas => true
+PASS | exportRankCsv devolve o mesmo CSV => true
+PASS | clicar no botao do ranking nao quebra => 1
+PASS | nome do arquivo do ranking usa a data de hoje => "ranking-escanteios-2026-10-04.csv"
+PASS | rodape do ranking cita o botao de CSV => true
+PASS | ranking local: 1 cabecalho + 4 jogos + total => 6
+PASS | ranking local: maior total primeiro => "12"
+PASS | ranking local: segundo jogo com escanteio => "10"
+PASS | ranking local usa os jogos carregados => "Time Casa a1 × Time Fora a1"
+PASS | ranking local: liga presente => "Serie A"
+PASS | ranking local: so quem tem fonte recebe posicao => "1|2||"
+PASS | ranking local: total informa quantos ficaram sem fonte => "ranking local · 2 sem fonte"
+PASS | ranking local: total soma os jogos com fonte => "22"
+PASS | botao do ranking exporta no modo local => "string"
+PASS | sem ranking nao gera CSV => null
+PASS | sem ranking o exportador avisa e nao quebra => null
+PASS | ranking CSV volta depois de restaurar => "string"
+PASS | exemplo do ranking (servidor) gerado => "string"
+PASS | exemplo do ranking (local) gerado => "string"
+RANK CSV CABECALHO | Posição ; Jogo ; Liga ; Situação ; Escanteios ; Base
+RANK CSV JOGO | 1 ; Alfa × Beta ; Serie A ; ao vivo ; 10 ; contagem real de escanteios
+RANK CSV SEM FONTE |  ; Gama × Delta ; Serie C ; não ao vivo ;  ; sem estatística de escanteio — nada foi inventado
+RANK CSV TOTAL | Total (2 jogo(s)) ;  ;  ; 1/2 com escanteio ; 10 ; ranking do servidor (proxy) · 1 sem fonte
+RANK CSV LOCAL TOTAL | Total (4 jogo(s)) ;  ;  ; 2/4 com escanteio ; 22 ; ranking local · 2 sem fonte
+PASS | botao de exportacao do H2H existe após abrir o jogo => true
+PASS | botao do H2H tem rotulo CSV => "⤓ CSV"
+PASS | secao do H2H tem o botao no titulo => true
+PASS | H2H: cartao mostra o resumo 3/2/2 => "3/2/2"
+PASS | H2H: cartao cita os confrontos reais (14/08) => true
+PASS | H2H: cartao cita o segundo confronto (02/04) => true
+PASS | H2H: cartao mostra a forma das duas equipes => true
+PASS | H2H: 1 cabecalho + resumo + 3 confrontos => 5
+PASS | H2H: cabecalho com as 12 colunas => "Tipo|Data|Liga|Casa|Placar|Fora|Vitórias casa|Empates|Vitórias fora|Forma casa|Forma fora|Observação"
+PASS | H2H: toda linha com 12 colunas => true
+PASS | H2H: linha de resumo => "Resumo H2H/3/2/2"
+PASS | H2H: CSV bate com o que o cartao mostra => "3/2/2"
+PASS | H2H: resumo nomeia as duas equipes => "Time Casa a1 (CAS) | Time Fora a1 (FOR)"
+PASS | H2H: resumo traz a forma recente => "V E V D V/D V E E D"
+PASS | H2H: resumo informa total e fonte => true
+PASS | H2H: data do 1o confronto em pt-BR => "14/08/2026"
+PASS | H2H: CSV bate com a data exibida no cartao => "14/08"
+PASS | H2H: placar do 1o confronto => "2-1"
+PASS | H2H: 2o confronto com empate => "0-0"
+PASS | H2H: ordem dos confrontos preservada (mais recente primeiro) => "14/08/2026 02/04/2026 20/12/2025"
+PASS | H2H: acento preservado (Copa Itália) => true
+PASS | H2H: aspas escapadas em CSV => true
+PASS | H2H: CSV comeca com BOM => 65279
+PASS | H2H: quebra CRLF => true
+PASS | H2H: sem NaN => -1
+PASS | h2hCsv e idempotente => true
+PASS | exportH2hCsv devolve o mesmo CSV => true
+PASS | nome do arquivo com os dois times e a data => "h2h-time-casa-a1-x-time-fora-a1-2026-10-04.csv"
+PASS | slug remove acento e espaco => "atletico-mineiro"
+PASS | clicar no botao do H2H nao quebra => 1
+PASS | H2H local: 1 cabecalho + resumo + aviso de lista => 3
+PASS | H2H local: resumo 1/0/2 => "1/0/2"
+PASS | H2H local: diz que a fonte e simulada => true
+PASS | H2H local: nao inventa confrontos => "sem lista de confrontos reais nesta fonte"
+PASS | H2H local: celulas de confronto vazias => "||"
+PASS | H2H local: sem NaN => -1
+PASS | H2H local: exporta normalmente => "string"
+PASS | sem H2H nao gera CSV => null
+PASS | h2h malformado nao gera CSV => null
+PASS | exportador sem H2H devolve null e avisa => null
+PASS | botao do H2H fica desabilitado sem resumo => true
+PASS | clique em botao desabilitado nao gera CSV => "object"
+PASS | clique em botao desabilitado nao quebra o painel => 1
+PASS | cartao H2H sem resumo desenha 0/0/0 sem erro => "0/0/0"
+PASS | botao do H2H habilitado quando ha resumo => false
+PASS | exemplo do H2H (proxy) gerado => "string"
+PASS | exemplo do H2H (local) gerado => "string"
+H2H CSV CABECALHO | Tipo ; Data ; Liga ; Casa ; Placar ; Fora ; Vitórias casa ; Empates ; Vitórias fora ; Forma casa ; Forma fora ; Observação
+H2H CSV RESUMO | Resumo H2H ;  ;  ; Time Casa a1 (CAS) ;  ; Time Fora a1 (FOR) ; 3 ; 2 ; 2 ; V E V D V ; D V E E D ; 7 confronto(s) no total · fonte: proxy (confrontos reais, cache 6h)
+H2H CSV CONFRONTO 1 | Confronto ; 14/08/2026 ; Copa Itália ; Time "Casa" a1 ; 2-1 ; Time Fora a1 ;  ;  ;  ;  ;  ; último confronto exibido no cartão H2H
+H2H CSV CONFRONTO 2 | Confronto ; 02/04/2026 ; Serie A ; Time Fora a1 ; 0-0 ; Time Casa a1 ;  ;  ;  ;  ;  ; último confronto exibido no cartão H2H
+H2H CSV CONFRONTO 3 | Confronto ; 20/12/2025 ; Serie A ; Time Casa a1 ; 1-3 ; Time Fora a1 ;  ;  ;  ;  ;  ; último confronto exibido no cartão H2H
+H2H CSV LOCAL AVISO | Confronto ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; sem lista de confrontos reais nesta fonte
+H2H CARTAO | 3 / 2 / 2
+PASS | botao de exportacao dos Momentos existe => true
+PASS | botao dos Momentos tem rotulo CSV => "⤓ CSV"
+PASS | secao Momentos tem o botao no titulo => true
+PASS | painel Momentos: 4 eventos => 4
+PASS | painel Momentos: ordem cronologica => "12/23/45/67"
+PASS | painel Momentos: equipe por lado => "Time Casa a1/Time Casa a1/Time Casa a1/Time Fora a1"
+PASS | Momentos: 1 cabecalho + 4 eventos + total => 6
+PASS | Momentos: cabecalho com as 7 colunas => "Ordem|Minuto|Ícone|Evento|Equipe|Lado|Observação"
+PASS | Momentos: toda linha com 7 colunas => true
+PASS | Momentos: CSV identico ao painel, linha a linha => "12|🟨|Cartão amarelo|Time Casa a1 ## 23|⚽|Gol \"de\" cabeça; bonito|Time Casa a1 ## 45|🔁|Substituição (intervalo)|Time Casa a1 ## 67|⚽|Gol!|Time Fora a1"
+PASS | Momentos: ordem numerada => "1/2/3/4"
+PASS | Momentos: lado casa/fora => "Casa/Casa/Casa/Fora"
+PASS | Momentos: acento preservado => true
+PASS | Momentos: aspas escapadas => true
+PASS | Momentos: ponto e virgula dentro do campo nao cria coluna => 7
+PASS | Momentos: quebra de linha virou espaco => "Substituição (intervalo)"
+PASS | Momentos: nenhum campo com quebra de linha => true
+PASS | Momentos: total com contagem e lados => "Total | 4 momento(s) | 3 casa · 1 fora"
+PASS | Momentos: total aponta a fonte local => "fonte: dados locais (simulados)"
+PASS | Momentos: CSV comeca com BOM => 65279
+PASS | Momentos: quebra CRLF => true
+PASS | Momentos: sem NaN => -1
+PASS | momentsCsv e idempotente => true
+PASS | exportMomentsCsv devolve o mesmo CSV => true
+PASS | nome do arquivo com os dois times e a data => "momentos-time-casa-a1-x-time-fora-a1-2026-10-04.csv"
+PASS | clicar no botao dos Momentos nao quebra => 1
+PASS | Momentos: total aponta a fonte proxy => "fonte: proxy (eventos reais do painel)"
+PASS | Momentos: so muda a observacao do total => "Gol \"de\" cabeça; bonito"
+PASS | sem eventos nao gera CSV => null
+PASS | events ausente nao gera CSV => null
+PASS | exportador sem eventos devolve null e avisa => null
+PASS | painel sem eventos mostra o aviso => true
+PASS | botao dos Momentos fica desabilitado sem eventos => true
+PASS | clique em botao desabilitado nao quebra => 1
+PASS | botao dos Momentos habilitado quando ha eventos => false
+PASS | regressao: CSV de medias por time continua valido => "string"
+PASS | regressao: CSV do ranking continua valido => "string"
+PASS | regressao: CSV do H2H continua valido => "string"
+PASS | regressao: botao do H2H segue habilitado => false
+PASS | exemplo dos Momentos gerado => "string"
+MOMENTOS CSV CABECALHO | Ordem ; Minuto ; Ícone ; Evento ; Equipe ; Lado ; Observação
+MOMENTOS CSV E1 | 1 ; 12 ; 🟨 ; Cartão amarelo ; Time Casa a1 ; Casa ; mesma linha do painel Momentos
+MOMENTOS CSV E2 | 2 ; 23 ; ⚽ ; Gol "de" cabeça; bonito ; Time Casa a1 ; Casa ; mesma linha do painel Momentos
+MOMENTOS CSV E3 | 3 ; 45 ; 🔁 ; Substituição (intervalo) ; Time Casa a1 ; Casa ; mesma linha do painel Momentos
+MOMENTOS CSV E4 | 4 ; 67 ; ⚽ ; Gol! ; Time Fora a1 ; Fora ; mesma linha do painel Momentos
+MOMENTOS CSV TOTAL | Total ; 4 momento(s) ;  ;  ; 3 casa · 1 fora ;  ; fonte: proxy (eventos reais do painel)
+MOMENTOS PAINEL | 12|🟨|Cartão amarelo|Time Casa a1 ## 23|⚽|Gol "de" cabeça; bonito|Time Casa a1 ## 45|🔁|Substituição (intervalo)|Time Casa a1 ## 67|⚽|Gol!|Time Fora a1
+PASS | botao da ficha existe => true
+PASS | botao da ficha tem rotulo CSV => "⤓ CSV"
+PASS | titulo Ficha da partida presente => true
+PASS | ficha: cabecalho com as 7 colunas => "Seção|Item|Casa|Fora|Total|Observação|Saldo"
+PASS | ficha: toda linha com 7 colunas => true
+PASS | ficha: secoes presentes e em ordem => "Partida>Estatísticas>Escanteios por período>Média por tempo>H2H>Momentos>Bots>Arquivo"
+PASS | ficha: comeca com BOM => 65279
+PASS | ficha: sem NaN => -1
+PASS | ficha: nenhuma linha com quebra interna => 39
+PASS | ficha/Partida: confronto e placar => "Time Casa a1 x Time Fora a1 | placar 2-1"
+PASS | ficha/Partida: cita a liga => true
+PASS | ficha/Partida: escanteios 6/4 total 10 => "6/4/10"
+PASS | ficha/Estatisticas: 6 linhas => 6
+PASS | ficha/Estatisticas: identicas as barras do painel => "Posse de bola (%)|55|45 ## Finalizações|11|7 ## Chutes no gol|4|3 ## Escanteios|6|4 ## Cartões|1|2 ## Faltas|10|12"
+PASS | ficha/Estatisticas: rotulos do painel => "Posse de bola (%)/Finalizações/Chutes no gol/Escanteios/Cartões/Faltas"
+PASS | ficha: observacao de fonte igual ao selo do painel => true
+PASS | ficha/Periodos: 4 faixas + 1o + 2o + total => 7
+PASS | ficha/Periodos: faixa 0-15 => "0-15'/2/1/3"
+PASS | ficha/Periodos: 1o tempo soma as 3 faixas => "1º tempo/5/8"
+PASS | ficha/Periodos: 2o tempo => "2º tempo/1/2"
+PASS | ficha/Periodos: total bate com o cabecalho do cartao => "10"
+PASS | ficha/media: 6 conjuntos x 2 tempos = 12 linhas => 12
+PASS | ficha/media: 1o tempo desta partida (casa/fora/total) => "Nesta partida · 1º tempo | 5 | 8"
+PASS | ficha/media: fora no 1o tempo desta partida => "3"
+PASS | ficha/media: 2o tempo desta partida => "Nesta partida · 2º tempo | 1 | 1 | 2"
+PASS | ficha/media: media do time da casa => "CAS · média · 1º tempo | 8"
+PASS | ficha/media: media da liga => "Serie A · média · 1º tempo | 8"
+PASS | ficha/media: media geral => "Geral · média · 1º tempo | 8 | 2"
+PASS | ficha/media: base informada em cada linha => "média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período"
+PASS | ficha/media: nada e estimado (aviso de base) => true
+PASS | ficha/media: 1o tempo + 2o tempo fecha com o total no 1o conjunto => 10
+PASS | ficha/media: tabela equivalente no painel => true
+PASS | ficha/media: painel tem 6 linhas de media => 6
+PASS | ficha/media: painel mostra 8/2 nesta partida => "8/2"
+PASS | ficha/media: painel e CSV concordam no 1o conjunto => "8/2"
+PASS | ficha/media: cabecalho da tabela no painel => "Média de escanteios/1º tempo/2º tempo/Saldo 1º tempo/Saldo 2º tempo"
+PASS | ficha/media: painel cita a base no rodape => true
+PASS | ficha/media: CSV do painel bate com a tabela => true
+PASS | ficha/media: sem periodo o painel mostra tracos => "–/–"
+PASS | ficha/media: linha sem periodo avisa que nao ha base => "sem base de período"
+PASS | ficha/media: CSV sem periodo sai com celulas vazias => "Nesta partida · 1º tempo||"
+PASS | ficha/media: CSV explica que nao ha base => "contagem desta partida · Casa = mandante · Fora = visitante · sem base de período"
+PASS | ficha/H2H: resumo igual ao cartao (casa/empates/fora) => "3/2/2"
+PASS | ficha/H2H: total de confrontos e fonte => true
+PASS | ficha/H2H: linha de forma => "Forma recente/V E V D V"
+PASS | ficha/H2H: confronto com data e placar => "14/08/2026/2-1"
+PASS | ficha/Momentos: 4 linhas => 4
+PASS | ficha/Momentos: identicas ao painel (minuto|evento|equipe) => "12|🟨 Cartão amarelo|Time Casa a1 ## 23|⚽ Gol \"de\" cabeça; bonito|Time Casa a1 ## 45|🔁 Substituição (intervalo)|Time Casa a1 ## 67|⚽ Gol!|Time Fora a1"
+PASS | ficha/Bots: nome, valor e disparo => "Robo cantos/10/true"
+PASS | painel/Bots: mesma metrica do bot (10 >= 8 dispara) => true
+PASS | ficha: rodape do arquivo igual ao rodape do painel => "Escanteios preenchidos pela média real da liga em cache (n=10 partidas)."
+PASS | ficha: conta as linhas acima dele => "37"
+PASS | panelCsv e idempotente => true
+PASS | exportPanelCsv devolve o mesmo CSV => true
+PASS | nome do arquivo da ficha => "ficha-time-casa-a1-x-time-fora-a1-2026-10-04.csv"
+PASS | clicar no botao da ficha nao quebra => 1
+PASS | ficha sem fonte: escanteios vazios (nunca 0) => "||"
+PASS | ficha sem fonte: explica o vazio => "sem fonte — campo em branco"
+PASS | ficha sem fonte: barra de escanteios vazia => "||"
+PASS | ficha sem fonte: periodo sem dados tem aviso => "sem divisão por período nesta partida"
+PASS | ficha sem fonte: H2H ausente tem aviso => "sem resumo de confronto direto"
+PASS | ficha sem fonte: momentos vazios tem aviso => "sem eventos registrados"
+PASS | ficha em modo demo: rodape diz que e simulacao => "Estatísticas simuladas para fins de demonstração."
+PASS | ficha sem fonte (fonte real): rodape fala em branco => true
+PASS | ficha: panelCsv sem argumento usa a partida aberta => "string"
+PASS | ficha: exportador sem partida devolve null => null
+PASS | regressao: medias por time => "string"
+PASS | regressao: ranking => "string"
+PASS | regressao: H2H => "string"
+PASS | regressao: Momentos => "string"
+PASS | regressao: selo de fonte no painel (media da liga n=10) => true
+PASS | regressao: rodape do painel pela fonte unica => "Escanteios preenchidos pela média real da liga em cache (n=10 partidas)."
+PASS | exemplo da ficha gerado => "string"
+FICHA CSV CABECALHO | Seção ; Item ; Casa ; Fora ; Total ; Observação ; Saldo
+FICHA CSV | Partida ; Confronto ; Time Casa a1 ; Time Fora a1 ;  ; 🇮🇹 Serie A · ao vivo 63' · placar 2-1 ; 
+FICHA CSV | Partida ; Escanteios (total) ; 6 ; 4 ; 10 ; contagem usada no painel ; 
+FICHA CSV | Partida ; Fonte das estatísticas ;  ;  ;  ; sem estatística oficial nesta partida (plano gratuito): escanteios preenchidos pela média REAL da liga em cache (10/jogo em 10 partidas). ; 
+FICHA CSV | Estatísticas ; Posse de bola (%) ; 55 ; 45 ; 100 ; linha da barra do painel ; 
+FICHA CSV | Estatísticas ; Finalizações ; 11 ; 7 ; 18 ; linha da barra do painel ; 
+FICHA CSV | Estatísticas ; Chutes no gol ; 4 ; 3 ; 7 ; linha da barra do painel ; 
+FICHA CSV | Estatísticas ; Escanteios ; 6 ; 4 ; 10 ; linha da barra do painel ; 
+FICHA CSV | Estatísticas ; Cartões ; 1 ; 2 ; 3 ; linha da barra do painel ; 
+FICHA CSV | Estatísticas ; Faltas ; 10 ; 12 ; 22 ; linha da barra do painel ; 
+FICHA CSV | Escanteios por período ; 0-15' ; 2 ; 1 ; 3 ; 1º tempo ; 
+FICHA CSV | Escanteios por período ; 16-30' ; 2 ; 1 ; 3 ; 1º tempo ; 
+FICHA CSV | Escanteios por período ; 31-45' ; 1 ; 1 ; 2 ; 1º tempo ; 
+FICHA CSV | Escanteios por período ; 46-60' ; 1 ; 1 ; 2 ; 2º tempo ; 
+FICHA CSV | Escanteios por período ; 1º tempo ; 5 ; 3 ; 8 ; faixas 0-15, 16-30 e 31-45 ; 
+FICHA CSV | Escanteios por período ; 2º tempo ; 1 ; 1 ; 2 ; faixa 46-60 ; 
+FICHA CSV | Escanteios por período ; Total ; 6 ; 4 ; 10 ; mesmo total do cabeçalho do cartão ; 
+FICHA CSV | Média por tempo ; Nesta partida · 1º tempo ; 5 ; 3 ; 8 ; contagem desta partida · Casa = mandante · Fora = visitante · base 1 jogo(s) com período ; 0
+FICHA CSV | Média por tempo ; Nesta partida · 2º tempo ; 1 ; 1 ; 2 ; contagem desta partida · Casa = mandante · Fora = visitante · base 1 jogo(s) com período ; 0
+FICHA CSV | Média por tempo ; CAS · média · 1º tempo ; 5 ; 3 ; 8 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; +5
+FICHA CSV | Média por tempo ; CAS · média · 2º tempo ; 1 ; 1 ; 2 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; +1
+FICHA CSV | Média por tempo ; FOR · média · 1º tempo ; 5 ; 3 ; 8 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; +3
+FICHA CSV | Média por tempo ; FOR · média · 2º tempo ; 1 ; 1 ; 2 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; +1
+FICHA CSV | Média por tempo ; Sofridos · média · 1º tempo ; 3 ; 5 ; 8 ; escanteios sofridos · Casa = sofridos pelo mandante · Fora = sofridos pelo visitante · adversários · base 2 jogo(s) do mandante e 2 do visitante ; +8
+FICHA CSV | Média por tempo ; Sofridos · média · 2º tempo ; 1 ; 1 ; 2 ; escanteios sofridos · Casa = sofridos pelo mandante · Fora = sofridos pelo visitante · adversários · base 2 jogo(s) do mandante e 2 do visitante ; +2
+FICHA CSV | Média por tempo ; Serie A · média · 1º tempo ; 5 ; 3 ; 8 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; 
+FICHA CSV | Média por tempo ; Serie A · média · 2º tempo ; 1 ; 1 ; 2 ; média por jogo · Casa = mandante · Fora = visitante · base 2 jogo(s) com período ; 
+FICHA CSV SECOES | Partida > Estatísticas > Escanteios por período > Média por tempo > H2H > Momentos > Bots > Arquivo | linhas=38
+PASS | lista: botao de exportacao existe => true
+PASS | lista: botao tem rotulo CSV => "⤓ CSV"
+PASS | lista: titulo mostra a contagem => " · 4"
+PASS | lista: cabecalho com as 18 colunas => "Ordem|Liga|Confronto|Casa|Fora|Situação|Minuto|Placar|Escanteios|1º tempo|2º tempo|Média 1º tempo (liga)|Média 2º tempo (liga)|Fonte do escanteio|Hora|Favorito|Saldo 1º tempo|Saldo 2º tempo"
+PASS | lista: toda linha com 18 colunas => true
+PASS | lista: CSV tem o mesmo numero de jogos da tela => 4
+PASS | lista: 4 jogos visiveis no cenario => 4
+PASS | lista: mesmos times e mesma ordem da tela => "Time Casa a1 com Time Fora a1 ## Time Casa a2 com Time Fora a2 ## Time Casa a4 com Time Fora a4 ## Time Casa a3 com Time Fora a3"
+PASS | lista: placar igual ao da tela => "2-1 ## 2-1 ##  ## 2-1"
+PASS | lista: minuto igual ao da tela (ao vivo) => "63"
+PASS | lista: escanteios iguais aos da tela (vazio quando nao ha) => "10 ## 12 ##  ## "
+PASS | lista: jogo sem fonte fica com escanteio vazio (nunca 0) => 2
+PASS | lista: explica o vazio do escanteio => "sem fonte — campo em branco"
+PASS | lista: liga em cada linha => 3
+PASS | lista: situacao por extenso (ordem visual, agrupada por liga) => "ao vivo/encerrado/agendado/encerrado"
+PASS | lista: CSV segue o agrupamento por liga da tela => "Serie A/Serie A/League One/Serie C"
+PASS | lista: ligas em ordem de primeira aparicao na tela => "Serie A/League One/Serie C"
+PASS | lista: hora so no agendado => 1
+PASS | lista: favorito marcado quando nao e favorito => true
+PASS | lista: CSV comeca com BOM => 65279
+PASS | lista: quebra CRLF => true
+PASS | lista: sem NaN => -1
+PASS | lista: rodape com total e situacoes => "Total | 4 jogo(s) | 1 ao vivo · 1 agendado(s) · 2 encerrado(s)"
+PASS | lista: rodape cita a aba e a liga => "aba todos · todas as ligas"
+PASS | lista: rodape soma os escanteios visiveis => "22"
+PASS | lista: rodape diz quantos tem escanteio e a base do periodo => true
+PASS | lista/rodape: uma linha de total por liga => 3
+PASS | lista/rodape: ligas na ordem dos grupos da tela => "Serie A/League One/Serie C"
+PASS | lista/rodape: mesma contagem de grupos da tela => 3
+PASS | lista/rodape: toda linha de liga com 18 colunas => true
+PASS | lista/rodape: Serie A soma 22 em 2 jogos => "2 jogo(s) | 2/2 com escanteio | 22"
+PASS | lista/rodape: Serie A traz a media por jogo => true
+PASS | lista/rodape: Serie A traz as situacoes do grupo => "1 ao vivo · 0 agendado(s) · 1 encerrado(s)"
+PASS | lista/rodape: League One sem escanteio fica vazio => "1 jogo(s) | 0/1 com escanteio | "
+PASS | lista/rodape: League One explica a ausencia => "sem fonte de escanteio nesta liga"
+PASS | lista/rodape: Serie C sem escanteio fica vazio => "0/1 com escanteio | "
+PASS | lista/rodape: somas por liga fecham com o total geral => 22
+PASS | lista/rodape: total geral continua por ultimo => "Total"
+PASS | lista/rodape: linhas de liga vem depois dos jogos => true
+PASS | lista/rodape: linhas de liga vem antes do total geral => true
+PASS | lista/rodape: media usa virgula decimal => true
+PASS | lista/rodape: soma decimal tambem na coluna de escanteios => "23"
+PASS | lista/rodape: valores restaurados => "22"
+PASS | lista/rodape: nome de liga com aspas escapado => true
+PASS | lista/rodape: escape nao quebra colunas => true
+PASS | lista/rodape: grupo renomeado soma os proprios jogos => "10"
+PASS | lista/rodape: total geral intacto apos o rename => "22"
+PASS | lista/rodape: filtro de liga deixa uma unica linha => 1
+PASS | lista/rodape: linha unica bate com o unico grupo da tela => 1
+PASS | lista/rodape: volta as 3 ligas => 3
+PASS | lista/rodape: exportador segue devolvendo o mesmo CSV => "string"
+PASS | lista/media: cabecalho com as duas colunas de media => "Média 1º tempo (liga)|Média 2º tempo (liga)"
+PASS | lista/media: Serie A media 9 no 1o tempo (18/2) => "9"
+PASS | lista/media: Serie A media 2 no 2o tempo (4/2) => "2"
+PASS | lista/media: a mesma media vale para os 2 jogos da liga => "9922"
+PASS | lista/media: liga sem periodo fica vazia => "|||"
+PASS | lista/media: media confere com soma/base da liga => 9
+PASS | lista/media: liga tambem traz a media => "9/2"
+PASS | lista/media: liga sem periodo fica vazia => "|||"
+PASS | lista/media: total geral com a media geral => "9/2"
+PASS | lista/media: media geral = soma dos tempos / base => 11
+PASS | lista/media: Serie C entra na base com 1 jogo => "11/2"
+PASS | lista/media: Serie A segue 9 (nao muda com a Serie C) => "9"
+PASS | lista/media: total geral 29/3 = 9,666 -> 9,7 => "9,7"
+PASS | lista/media: valores restaurados => "9"
+PASS | lista/periodo: cabecalho com 1o e 2o tempo => "1º tempo|2º tempo"
+PASS | lista/periodo: a1 8 no 1o tempo e 2 no 2o => "10/8/2"
+PASS | lista/periodo: a2 12 no total, 10 e 2 por tempo => "12/10/2"
+PASS | lista/periodo: tempo + tempo fecha com o total em cada jogo => true
+PASS | lista/periodo: jogo sem fonte fica com tempos vazios => "|||"
+PASS | lista/periodo: painel da partida mostra 8 e 2 => "8/2"
+PASS | lista/periodo: CSV do periodo igual ao do painel => "8/2"
+PASS | lista/periodo: coluna de escanteios igual ao total do painel => "10"
+PASS | lista/periodo: Serie A soma 18 e 4 por tempo => "18/4"
+PASS | lista/periodo: soma dos tempos da liga fecha com o total da liga => 22
+PASS | lista/periodo: ligas sem periodo ficam vazias => "|||"
+PASS | lista/periodo: total geral 18 no 1o e 4 no 2o => "18/4"
+PASS | lista/periodo: tempos do total geral fecham com os escanteios => 22
+PASS | lista/periodo: soma dos tempos das ligas igual ao total geral => "18/4"
+PASS | lista/periodo: avisa quando o periodo nao fecha com o total => "simulado (demo) · período soma 13, total 10 (difere na fonte)"
+PASS | lista/periodo: aviso tambem no total geral => true
+PASS | lista/periodo: aviso nao quebra as colunas => true
+PASS | lista/periodo: aviso some ao restaurar => "simulado (demo)"
+PASS | listCsv e idempotente => true
+PASS | exportListCsv devolve o mesmo CSV => true
+PASS | clicar no botao da lista nao quebra => 1
+PASS | lista: aspas e ponto e virgula escapados => true
+PASS | lista: escape nao quebra as colunas => true
+PASS | lista: tela mostra o nome com aspas => "Time \"Casa\"; Móvel"
+PASS | lista: nome igual na tela e no CSV => true
+PASS | lista/filtro: aba finalizados limita o CSV => 2
+PASS | lista/filtro: so encerrados => true
+PASS | lista/filtro: rodape acompanha a aba => "aba finalizados · todas as ligas"
+PASS | lista/filtro: botao continua habilitado => false
+PASS | lista/filtro: liga selecionada limita o CSV => 2
+PASS | lista/filtro: um unico grupo de liga => 1
+PASS | lista/filtro: rodape cita a liga escolhida => true
+PASS | lista vazia: botao desabilitado => true
+PASS | lista vazia: nao gera CSV => null
+PASS | lista vazia: exportador devolve null e avisa => null
+PASS | lista vazia: tela mostra o aviso => true
+PASS | lista vazia: contagem some do titulo => ""
+PASS | lista: botao volta a habilitar => false
+PASS | lista: CSV volta depois de restaurar => "string"
+PASS | regressao: ficha da partida => "string"
+PASS | regressao: momentos => "string"
+PASS | regressao: H2H => "string"
+PASS | regressao: ranking => "string"
+PASS | regressao: medias por time => "string"
+PASS | regressao: botao da ficha segue habilitado => "exportPanelCsv"
+PASS | exemplo da lista gerado => "string"
+LISTA CSV CABECALHO | Ordem ; Liga ; Confronto ; Casa ; Fora ; Situação ; Minuto ; Placar ; Escanteios ; 1º tempo ; 2º tempo ; Média 1º tempo (liga) ; Média 2º tempo (liga) ; Fonte do escanteio ; Hora ; Favorito ; Saldo 1º tempo ; Saldo 2º tempo
+LISTA CSV | 1 ; Serie A ; Time Casa a1 × Time Fora a1 ; Time Casa a1 ; Time Fora a1 ; ao vivo ; 63' ; 2-1 ; 10 ; 8 ; 2 ; 9 ; 2 ; simulado (demo) ;  ; ☆ ; +2 ; 0
+LISTA CSV | 2 ; Serie A ; Time Casa a2 × Time Fora a2 ; Time Casa a2 ; Time Fora a2 ; encerrado ;  ; 2-1 ; 12 ; 10 ; 2 ; 9 ; 2 ; simulado (demo) ;  ; ☆ ; +2 ; 0
+LISTA CSV | 3 ; League One ; Time Casa a4 × Time Fora a4 ; Time Casa a4 ; Time Fora a4 ; agendado ;  ;  ;  ;  ;  ;  ;  ; sem fonte — campo em branco ; 16:00 ; ☆ ;  ; 
+LISTA CSV | 4 ; Serie C ; Time Casa a3 × Time Fora a3 ; Time Casa a3 ; Time Fora a3 ; encerrado ;  ; 2-1 ;  ;  ;  ;  ;  ; sem fonte — campo em branco ;  ; ☆ ;  ; 
+LISTA CSV | Σ Liga ; Serie A ; 2 jogo(s) ;  ;  ; 2/2 com escanteio ;  ;  ; 22 ; 18 ; 4 ; 9 ; 2 ; média 11/jogo (base 2 jogo(s) com escanteio) · período em 2 jogo(s) · saldo = mandante − visitante por tempo ; 1 ao vivo · 0 agendado(s) · 1 encerrado(s) ;  ; +4 ; 0
+LISTA CSV | Σ Liga ; League One ; 1 jogo(s) ;  ;  ; 0/1 com escanteio ;  ;  ;  ;  ;  ;  ;  ; sem fonte de escanteio nesta liga ; 0 ao vivo · 1 agendado(s) · 0 encerrado(s) ;  ;  ; 
+LISTA CSV | Σ Liga ; Serie C ; 1 jogo(s) ;  ;  ; 0/1 com escanteio ;  ;  ;  ;  ;  ;  ;  ; sem fonte de escanteio nesta liga ; 0 ao vivo · 0 agendado(s) · 1 encerrado(s) ;  ;  ; 
+LISTA CSV | Total ; 4 jogo(s) ; aba todos · todas as ligas ;  ;  ; 1 ao vivo · 1 agendado(s) · 2 encerrado(s) ;  ;  ; 22 ; 18 ; 4 ; 9 ; 2 ; 2/4 com escanteio · período em 2 jogo(s) · saldo = mandante − visitante por tempo ;  ;  ; +4 ; 0
+LISTA CSV FILTRO ABA | Total ; 2 jogo(s) ; aba finalizados · todas as ligas ;  ;  ; 0 ao vivo · 0 agendado(s) · 2 encerrado(s) ;  ;  ; 12 ; 10 ; 2 ; 10 ; 2 ; 1/2 com escanteio · período em 1 jogo(s) · saldo = mandante − visitante por tempo ;  ;  ; +2 ; 0
+LISTA CSV ESCAPE | Time "Casa"; Móvel
+PASS | ficha/sofridos: 1o tempo presente => true
+PASS | ficha/sofridos: 2o tempo presente => true
+PASS | ficha/sofridos: observacao explica quem e quem => true
+DBG sof [["Média por tempo","Sofridos · média · 1º tempo","3,5","5,5","9","escanteios sofridos · Casa = sofridos pelo mandante · Fora = sofridos pelo visitante · adversários · base 2 jogo(s) do mandante e 2 do visitante","+9"],["Média por tempo","Sofridos · média · 2º tempo","1","1","2","escanteios sofridos · Casa = sofridos pelo mandante · Fora = sofridos pelo visitante · adversários · base 2 jogo(s) do mandante e 2 do visitante","+2"]] | base []
+PASS | ficha/sofridos: Total = soma dos lados com base => true
+PASS | ficha/sofridos: sem NaN => false
+PASS | ficha/media: 6 conjuntos -> 12 linhas => 12
+PASS | ficha/media: ordem esperada => "Nesta partida | CAS · média | FOR · média | Sofridos · média | Serie A · média | Geral · média"
+PASS | ficha/media: rodape do painel segue presente => true
+PASS | ficha/sofridos: linha aparece no painel => true
+PASS | ficha/sofridos: base dos adversarios no painel => true
+PASS | ficha/sofridos: rotulo do time no painel => false
+PASS | ficha: decimais em pt-BR (virgula, nunca ponto) => false
+PASS | lista: colunas de media por tempo intactas => 2
+PASS | lista: total geral inalterado => "22"
+PASS | ficha/saldo: 7a coluna e o Saldo => "Saldo"
+PASS | ficha/saldo: 12 linhas com 7 celulas => "12/12"
+PASS | ficha/saldo: CAS 1o tempo = pro exibido - contra exibido => "+5,5"
+PASS | ficha/saldo: FOR 1o tempo = pro exibido - contra exibido => "+3,5"
+PASS | ficha/saldo: CAS 2o tempo = pro exibido - contra exibido => "+1"
+PASS | ficha/saldo: FOR 2o tempo = pro exibido - contra exibido => "+1"
+PASS | ficha/saldo: sofridos 1o tempo = soma dos saldos dos times => "+9"
+PASS | ficha/saldo: sofridos 2o tempo = soma dos saldos dos times => "+2"
+PASS | ficha/saldo: sofridos = CAS + FOR => true
+PASS | ficha/saldo: nesta partida e neutro => "0/0"
+PASS | ficha/saldo: liga e geral sem par a favor/contra => "/"
+PASS | ficha/saldo: pro exibido menos contra exibido => "5.5/3.5"
+PASS | ficha/saldo: sem NaN na ficha => false
+PASS | ficha/saldo: sinal explicito => true
+PASS | ficha/saldo: painel com 6 linhas de saldo => 6
+DBG saldos painel ["0/0","+5,5/+1","+3,5/+1","+9/+2","–/–","–/–"] | csv ["0","0","+5,5","+1","+3,5","+1","+9","+2","","","",""] | pSof +9/+2
+PASS | ficha/saldo: painel e CSV concordam na linha de sofridos => "+9/+2"
+PASS | ficha/saldo: dica explica a origem => true
+PASS | ficha/saldo: rodape explica o cruzamento => true
+PASS | ficha/saldo: lista de jogos segue com 18 colunas => 18
+PASS | ficha/saldo: total da lista intacto => "22"
+PASS | lista/saldo: cabecalho traz as duas colunas => "Saldo 1º tempo|Saldo 2º tempo"
+PASS | lista/saldo: todas as linhas com 18 colunas => true
+PASS | lista/saldo: sem periodo deixa a celula vazia (nunca 0) => true
+DBG lista saldos | jogo: ["1:+2/0","2:+2/0","3:/","4:/"] | liga: ["Serie A:+4/0","League One:/","Serie C:/"] | total: +4/0 | bad: 
+PASS | lista/saldo: Sigma Liga fecha com a soma dos jogos do grupo => true
+PASS | lista/saldo: total geral fecha com os jogos (col 16) => "+4"
+PASS | lista/saldo: total geral fecha com os jogos (col 17) => "0"
+PASS | lista/saldo: sinal explicito e sem ponto decimal => true
+PASS | lista/saldo: rodape explica a definicao => true
+PASS | lista/saldo: liga sem periodo fica sem saldo => true
+PASS | lista/saldo: ficha da partida segue com a coluna Saldo => "Saldo"
+PASS | lista/saldo: total de escanteios intacto => "22"
+PASS | grafico/acum: só ligas com período entram => "Serie A"
+PASS | grafico/acum: 5 pontos (0 + as 4 faixas) => 5
+PASS | grafico/acum: acumulado ponto a ponto => "0/2/4/4/4"
+PASS | grafico/acum: saldo por faixa => "2/2/0/0"
+PASS | grafico/acum: faixas do mandante => "5/4/2/2"
+PASS | grafico/acum: faixas do visitante => "3/2/2/2"
+PASS | grafico/acum: acumulado = soma das faixas anteriores => true
+PASS | grafico/acum: fim da linha = Sigma Liga do CSV da lista => "4=+4"
+PASS | grafico/acum: faixas fecham com os totais por tempo da lista => "18/18/4/4"
+PASS | grafico/acum: acumulado no intervalo = variação do 1º tempo => 4
+PASS | grafico/acum: 5 pontos na linha => 5
+PASS | grafico/acum: 4 segmentos da linha + 5 linhas de grade + zero + intervalo => 11
+PASS | grafico/acum: rotula faixas, tempos e valor final => true
+PASS | grafico/acum: nenhuma barra desenhada => "0/0"
+DBG acum geom {"groups":1,"points":5,"buckets":4,"span":"both","sort":"net","labels":["0'","15'","30'","45'","60'+"],"xstep":67.5,"zeroY":146.3}
+PASS | grafico/acum: geometria declara 5 pontos e 4 faixas => "5/4"
+PASS | grafico/acum: canvas escala por devicePixelRatio => true
+PASS | grafico/acum: rodape explica o acumulado => true
+PASS | grafico/acum: rodape cita as 4 faixas => true
+PASS | grafico/acum: legenda traz a liga e o saldo final => true
+arquivo saldo-por-liga-exemplo.csv regravado pelo app
+PASS | grafico/acum: CSV com 10 colunas => true
+PASS | grafico/acum: cabecalho do acumulado => "Liga|Acum. 15'|Acum. 30'|Acum. 45' (intervalo)|Acum. 60'+ (saldo final)|Variação 1º tempo|Variação 2º tempo|Jogos com período|Jogos na liga|Ordem no gráfico"
+PASS | grafico/acum: linha da liga = pontos da linha do grafico => "Serie A|+2|+4|+4|+4|+4|0|2/2|2|1"
+PASS | grafico/acum: total do arquivo fecha => "+2|+4|+4|+4|+4|0"
+PASS | grafico/acum: média por jogo nos pontos => "0/1/2/2/2"
+PASS | grafico/acum: pontos em média = pontos somados / jogos com período => true
+PASS | grafico/acum: média por faixa => "2.5/2/1/1 ; 1.5/1/1/1"
+PASS | grafico/acum: cabecalho marca a metrica => "Acum. 15' (média/jogo)"
+PASS | grafico/acum: duas linhas, ordenadas pelo saldo final => "Serie A/Serie C"
+PASS | grafico/acum: Serie C descendo no acumulado => "0/-1/-2/-3/-4"
+PASS | grafico/acum: cores distintas por liga => true
+PASS | grafico/acum: legenda lista as duas ligas => 2
+PASS | grafico/acum: 2 ligas = 10 pontos e 15 segmentos/eixos => "10/15"
+PASS | grafico/acum: sem período o CSV é null => null
+PASS | grafico/acum: aviso no lugar da linha => true
+PASS | grafico/acum: nada de NaN no CSV => false
+PASS | grafico/acum: virgula decimal, nunca ponto => false
+PASS | grafico/acum: volta ao estado normal (1 liga) => 1
+PASS | grafico/time: um time por linha => 4
+PASS | grafico/time: ordenado pelo saldo final => true
+PASS | grafico/time: soma dos saldos dos times = 0 por liga => "0"
+PASS | grafico/time: acumulado fecha com a soma das faixas => true
+PASS | grafico/time: pro dos times = escanteios somados das partidas => true
+PASS | grafico/time: faixa a faixa o pro confere com as partidas => true
+PASS | grafico/time: time so entra com periodo => true
+arquivo saldo-por-time-exemplo.csv gravado pelo app
+PASS | grafico/time: nenhuma barra desenhada => "0/0"
+PASS | grafico/time: um ponto por marco e por linha => 20
+PASS | grafico/time: geometria de 5 pontos por linha => "4/5"
+PASS | grafico/time: legenda lista os times do grafico => 4
+PASS | grafico/time: titulo do cartao muda para por time => true
+PASS | grafico/time: rodape explica o calculo por time => true
+PASS | grafico/time: rodape avisa que a soma dos times e zero => true
+PASS | grafico/time: CSV de times comeca pelo Time => "Time"
+PASS | grafico/time: CSV de times com 10 colunas => 10
+PASS | grafico/time: todas as linhas com 10 celulas => true
+PASS | grafico/time: linhas = times + total + cabecalho => 6
+PASS | grafico/time: rodape do CSV fecha em zero => "0"
+DBG time mao: 0|1|2|2|2 :: 0|1|2|2|2
+PASS | grafico/time: acumulado do time bate com o calculado a mao => "0|1|2|2|2"
+PASS | grafico/time: acumulado a mao das 4 faixas => 5
+PASS | grafico/time: sem NaN no CSV de times => false
+PASS | grafico/time: virgula decimal no CSV de times => false
+PASS | grafico/time: media por jogo nao gera NaN => true
+PASS | grafico/time: cabecalho avisa media por jogo => true
+PASS | grafico/time: CSV volta a ser o da liga => "Liga"
+PASS | grafico/time: modo liga agrupa menos linhas que o modo time => true
+PASS | grafico/time: titulo volta para por liga => true
+PASS | grafico/periodo: sem filtro o CSV e o de sempre => "Liga|Acum. 15'|Acum. 30'|Acum. 45' (intervalo)|Acum. 60'+ (saldo final)|Variação 1º tempo|Variação 2º tempo|Jogos com período|Jogos na liga|Ordem no gráfico"
+PASS | grafico/periodo: 1o tempo mantem as ligas => 3
+PASS | grafico/periodo: 2o tempo mantem as ligas => 3
+PASS | grafico/periodo: 1o tempo com cabecalho proprio => "Acum. 45' (fim do 1º tempo)"
+PASS | grafico/periodo: 2o tempo com cabecalho rebaseado => "Acum. 45' (reinício do 2º tempo)"
+PASS | grafico/periodo: 1o tempo usa 10 colunas => true
+PASS | grafico/periodo: 2o tempo usa 10 colunas => true
+PASS | grafico/periodo: 1o tempo zera as colunas do 2o tempo => true
+PASS | grafico/periodo: 2o tempo zera as colunas do 1o tempo => true
+PASS | grafico/periodo: 1o tempo bate com a coluna de 45 do modo sem filtro => "+4"
+PASS | grafico/periodo: variacao do 1o tempo = valor de 45 => true
+PASS | grafico/periodo: 2o tempo bate com a variacao do 2o tempo sem filtro => "0"
+PASS | grafico/periodo: 2o tempo reinicia o acumulado no intervalo => true
+PASS | grafico/periodo: total do 1o tempo = total da coluna de 45 => "+4"
+PASS | grafico/periodo: mesmos times nas tres visoes => "4/4"
+PASS | grafico/periodo: 1o tempo por time fecha no acumulado de 45 => "2|2|-2|-2"
+PASS | grafico/periodo: 2o tempo por time = variacao do 2o tempo sem filtro => "0|0|0|0"
+PASS | grafico/periodo: soma dos times e zero no 1o tempo => "0"
+PASS | grafico/periodo: soma dos times e zero no 2o tempo => "0"
+PASS | grafico/periodo: 1o tempo desenha 4 pontos em 3 faixas => "4/3"
+PASS | grafico/periodo: eixo do 1o tempo vai de 0 a 45 => "0'|15'|30'|45'"
+PASS | grafico/periodo: 1o tempo tem 4 marcas no eixo => 4
+PASS | grafico/periodo: pro do 1o tempo confere com as faixas das partidas => true
+PASS | grafico/periodo: 2o tempo desenha 2 pontos em 1 faixa => "2/1"
+PASS | grafico/periodo: eixo do 2o tempo rebaseado em 45-60 => "45'|60'+"
+PASS | grafico/periodo: geometria registra o filtro => "h2"
+PASS | grafico/periodo: 2o tempo nao desenha barra => "0/0"
+PASS | grafico/periodo: 2o tempo desenha 2 pontos por linha => 2
+PASS | grafico/periodo: rodape explica o filtro de 2o tempo => true
+PASS | grafico/periodo: rodape cita o eixo rebaseado => true
+PASS | grafico/periodo: titulo do cartao cita o 2o tempo => true
+PASS | grafico/periodo: legenda fala do saldo do 2o tempo => true
+PASS | grafico/periodo: rodape explica o filtro de 1o tempo => true
+PASS | grafico/periodo: titulo cita o 1o tempo => true
+PASS | grafico/periodo: mesmo sem filtro o rodape segue explicando o intervalo => true
+PASS | grafico/periodo: clique no 2o tempo muda o estado => "h2"
+PASS | grafico/periodo: botao do filtro fica marcado => true
+PASS | grafico/periodo: clique em Ambos volta ao normal => "both"
+PASS | grafico/periodo: filtro sobrevive a troca de visao => "h1|team"
+PASS | grafico/periodo: CSV de time mantem o filtro => "Acum. 45' (fim do 1º tempo)"
+PASS | grafico/periodo: rodape do CSV de time fecha em zero com filtro => "0"
+PASS | grafico/periodo: valor invalido volta para sem filtro => "both"
+CSVs de periodo gravados pelo app
+CSV periodo h1 (liga): ﻿"Liga";"Acum. 15'";"Acum. 30'";"Acum. 45' (fim do 1º tempo)";"Acum. 60'+ (fora do filtro: 1º tempo)";"Variação 1º tempo";"Variação 2º tempo (fora do filtro)";"Jogos com período";"Jogos na liga";"Ordem no gráfico"
+CSV periodo h2 (liga): ﻿"Liga";"Acum. 15' (fora do filtro: 2º tempo)";"Acum. 30' (fora do filtro: 2º tempo)";"Acum. 45' (reinício do 2º tempo)";"Acum. 60'+ (saldo final)";"Variação 1º tempo (fora do filtro)";"Variação 2º tempo";"Jogos com período";"Jogos na liga";"Ordem no gráfico"
+PASS | grafico/periodo: volta ao estado inicial => "both|league|sum"
+PASS | grafico/legenda: selo = fim da linha (both/league) => "+4"
+PASS | grafico/legenda: cor do selo (both/league) => "pos"
+PASS | grafico/legenda: selo na serie certa (both/league) => "Serie A"
+PASS | grafico/legenda: selo = fim da linha (h1/league) => "+4"
+PASS | grafico/legenda: cor do selo (h1/league) => "pos"
+PASS | grafico/legenda: selo na serie certa (h1/league) => "Serie A"
+PASS | grafico/legenda: selo = fim da linha (h2/league) => "0"
+PASS | grafico/legenda: cor do selo (h2/league) => "zero"
+PASS | grafico/legenda: selo na serie certa (h2/league) => "Serie A"
+PASS | grafico/legenda: selo = fim da linha (both/team) => "+2|+2|-2|-2"
+PASS | grafico/legenda: cor do selo (both/team) => "pos|pos|neg|neg"
+PASS | grafico/legenda: selo na serie certa (both/team) => "Time Casa a1|Time Casa a2|Time Fora a1|Time Fora a2"
+PASS | grafico/legenda: selo = fim da linha (h1/team) => "+2|+2|-2|-2"
+PASS | grafico/legenda: cor do selo (h1/team) => "pos|pos|neg|neg"
+PASS | grafico/legenda: selo na serie certa (h1/team) => "Time Casa a1|Time Casa a2|Time Fora a1|Time Fora a2"
+PASS | grafico/legenda: selo = fim da linha (h2/team) => "0|0|0|0"
+PASS | grafico/legenda: cor do selo (h2/team) => "zero|zero|zero|zero"
+PASS | grafico/legenda: selo na serie certa (h2/team) => "Time Casa a1|Time Casa a2|Time Fora a1|Time Fora a2"
+PASS | grafico/legenda: um selo por linha desenhada (liga) => 4
+PASS | grafico/legenda: um selo por linha desenhada (time) => 4
+PASS | grafico/legenda: ordem da legenda = maior saldo primeiro => true
+PASS | grafico/legenda: primeiro item marcado como 1o => "1º"
+PASS | grafico/legenda: aviso de ordem no topo da legenda => true
+PASS | grafico/legenda: dica do selo informa a base de jogos => true
+PASS | grafico/legenda: sem sobra quando todas as linhas cabem => false
+PASS | grafico/legenda: dica do selo tambem na visao por time => true
+PASS | grafico/legenda: estado final restaurado => "both|league|sum"
+PASS | grafico/ordem: padrao ordena pelo saldo final, maior primeiro => "ok"
+PASS | grafico/ordem: empate resolvido pelo nome (A-Z, estavel) => "ok"
+PASS | grafico/ordem: legenda na mesma ordem da serie desenhada => "Serie A"
+PASS | grafico/ordem: selo da legenda = saldo final da serie => "+4"
+PASS | grafico/ordem: CSV na mesma ordem da legenda => "Serie A"
+PASS | grafico/ordem: coluna de ordem do CSV bate com a legenda => "1"
+PASS | grafico/ordem: aviso da legenda cita o saldo final => true
+PASS | grafico/ordem: ordenacao vale nas duas visoes => "ok|ok"
+PASS | grafico/ordem: no filtro 1o tempo ordena pelo acumulado de 45 => "ok"
+PASS | grafico/ordem: no filtro 2o tempo ordena pelo saldo do 2o tempo => "ok"
+PASS | grafico/ordem: modo nome ordena A-Z na legenda => "Time Casa a1|Time Casa a2|Time Fora a1|Time Fora a2"
+PASS | grafico/ordem: modo nome mantem o selo com o valor final => "+2|+2|-2|-2"
+PASS | grafico/ordem: modo nome mantem o CSV na mesma ordem => "Time Casa a1|Time Casa a2|Time Fora a1|Time Fora a2"
+PASS | grafico/ordem: aviso da legenda muda para nome A-Z => true
+PASS | grafico/ordem: geometria registra a ordenacao => "name"
+PASS | grafico/ordem: clique em Nome muda a ordenacao => "name"
+PASS | grafico/ordem: botao ativo fica marcado (e o outro nao) => "true/true"
+PASS | grafico/ordem: clique em Saldo final volta ao padrao => "net"
+PASS | grafico/ordem: ordenacao sobrevive a filtro e visao => "name|h1|team"
+PASS | grafico/ordem: valor invalido cai no saldo final => "net"
+PASS | grafico/ordem: ordem sequencial sem buraco => "true/1"
+PASS | grafico/ordem: sem NaN no CSV em nenhuma ordenacao => "false/false"
+PASS | grafico/ordem: estado final restaurado => "net|both|league|sum"
+PASS | grafico/persistencia: sem valor guardado o padrao e saldo final => "net"
+PASS | grafico/persistencia: clicar em Nome grava a escolha => "name|\"name\""
+PASS | grafico/persistencia: o que foi gravado e o que a carga devolve => "name"
+PASS | grafico/persistencia: modo restaurado antes de desenhar (botao Nome ja ativo) => "true"
+PASS | grafico/persistencia: geometria ja sai com a ordem restaurada => "name"
+PASS | grafico/persistencia: legenda ja sai ordenada por nome => "Serie A"
+PASS | grafico/persistencia: titulo/aviso acompanham o modo restaurado => true
+PASS | grafico/persistencia: clicar em Saldo final regrava o padrao => "net|\"net\""
+PASS | grafico/persistencia: valor invalido no storage cai no padrao => "net|net"
+PASS | grafico/persistencia: valor nulo no storage cai no padrao => "net"
+PASS | grafico/persistencia: storage que lanca nao derruba a pagina => "net|name|true"
+PASS | grafico/persistencia: escolha anterior sobrevive ao erro de storage => "net"
+PASS | grafico/persistencia: estado final restaurado => "net|both|league|sum"
+PASS | grafico/prefs: sem nada guardado, os tres padroes => "net|league|both"
+PASS | grafico/prefs: limpeza real do storage deixa o cartao no padrao => "true|net|league|both"
+PASS | grafico/prefs: clicar em Por time grava a visao => "team|team"
+PASS | grafico/prefs: clicar em 1o tempo grava o filtro sem apagar a visao => "h1|h1|team"
+PASS | grafico/prefs: clicar em Nome grava a ordem sem apagar os outros dois => "name|name|team|h1"
+PASS | grafico/prefs: a ordem continua espelhada na chave antiga => "\"name\""
+PASS | grafico/prefs: os tres estados restaurados antes de desenhar => "name|team|h1"
+PASS | grafico/prefs: geometria do canvas reflete filtro e ordem => "h1|name"
+PASS | grafico/prefs: botoes ativos certos (visao, filtro, ordem) => "team|h1|name"
+PASS | grafico/prefs: titulo cita visao e filtro restaurados => true
+PASS | grafico/prefs: rodape acompanha o filtro restaurado => "true"
+FAIL | grafico/prefs: CSV segue visao e filtro restaurados => "\"Time|true"
+PASS | grafico/prefs: legenda ja sai ordenada por nome na primeira pintura => "true"
+PASS | grafico/prefs: prefs corrompidas caem no padrao campo a campo => "net|league|both"
+PASS | grafico/prefs: valores invalidos dentro do JSON caem no padrao => "net|league|both"
+PASS | grafico/prefs: chave antiga continua sendo respeitada => "name|league|both"
+PASS | grafico/prefs: storage que lanca nao derruba a pagina => "net|league|both|team|true"
+PASS | grafico/prefs: leitura anterior sobrevive ao erro de storage => "name|league|both"
+PASS | grafico/prefs: estado final restaurado => "net|league|both|sum"
+PASS | cliente envia ?min= padrao ao proxy => true
+PASS | cliente envia o ?min= escolhido (2) => true
+PASS | cliente envia o ?min= limitado (50) => true
+PASS | teamavg tambem recebe ?min= => true
+PASS | só chamadas ao proxy (0 à API direta) => true
+PASS | erros JS => 0
+RESUMO | fails=1 | erros=0 | arc=456 lineTo=817 fillText=768 | fetch=["https://px.test/derive/board?days=1&min=8","https://px.test/derive/board?days=1&min=8","https://px.test/derive/match?id=1","https://px.test/derive/h2h?home=3&away=4","https://px.test/derive/match?id=3","https://px.test/derive/h2h?home=3&away=4","https://px.test/derive/match?id=4","https://px.test/derive/h2h?home=3&away=4","https://px.test/derive/teamavg?days=7&min=8","https://px.test/derive/board?days=1&min=2","https://px.test/derive/board?days=1&min=50","https://px.test/derive/board?days=1&min=8","https://px.test/derive/teamavg?days=7&min=8","https://px.test/derive/match?id=1","https://px.test/derive/h2h?home=3&away=4"]

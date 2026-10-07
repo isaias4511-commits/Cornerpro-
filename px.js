@@ -1,0 +1,57 @@
+const fs = require('fs');
+let src = fs.readFileSync('cornerpro-proxy.js', 'utf8');
+const before = src;
+src = src.replace(/export\s+default\s*\{/, 'const __worker = {');
+if (src === before) throw new Error('nao achei "export default {"');
+src += '\nmodule.exports = { minFrom, leagueMap, estimate, teamRecord, MIN_LEAGUE_SAMPLES };\n';
+fs.writeFileSync('/tmp/px.cjs', src);
+const LEAGUES = { '71': { name:'Serie A', n:3, corners:30 }, '140': { name:'La Liga', n:10, corners:95 }, '999': { name:'Serie C', n:3, corners:24 } };
+global.caches = { default: { match: async () => ({ json: async () => ({ leagues: LEAGUES }) }), put: async () => {} } };
+const P = require('/tmp/px.cjs');
+const SP = (q) => new URLSearchParams(q);
+let fails = 0;
+const t = (l, g, w) => { const ok = JSON.stringify(g) === JSON.stringify(w); if (!ok) fails++; console.log((ok?'PASS':'FAIL') + ' | ' + l + ' => ' + JSON.stringify(g)); };
+const mkAgg = (id, name, lgs) => ({ id, name, abbr:'X', badge:null, league:'',
+  games: lgs.reduce((s,x)=>s+x.games,0), cf:0, ca:0, gf:0, ga:0, hg:0, hf:0, ag:0, af:0,
+  cn: lgs.reduce((s,x)=>s+x.cn,0), perDay:{},
+  lg: Object.fromEntries(lgs.map(x => [String(x.id), { id:String(x.id), name:x.name, country:x.country||'', games:x.games, cn:x.cn }])) });
+(async () => {
+  const lgm = await P.leagueMap({}, 8);
+  const own = P.teamRecord(mkAgg(1,'Own',[{id:140,name:'La Liga',country:'Spain',games:2,cn:2}]), lgm, 8);
+  t('own: kind', own.source.kind, 'own');
+  t('own: liga de origem', own.source.league, 'La Liga');
+  t('own: pais', own.source.country, 'Spain');
+  t('own: n da liga', own.source.leagueAvgN, 10);
+  t('own: usable', own.source.usable, true);
+  t('own: media por jogo da liga', own.source.leaguePerMatch, 9.5);
+  const other = P.teamRecord(mkAgg(2,'Other',[{id:71,name:'Serie A',country:'Italy',games:2,cn:0},{id:140,name:'La Liga',country:'Spain',games:1,cn:1}]), lgm, 8);
+  t('other: kind', other.source.kind, 'other');
+  t('other: liga de origem e a que deu escanteio', other.source.league, 'La Liga');
+  t('other: liga principal do time e outra', other.league, 'Serie A');
+  t('other: country para a bandeira', other.source.country, 'Spain');
+  t('other: n da liga de origem', other.source.leagueAvgN, 10);
+  const pooled = P.teamRecord(mkAgg(3,'Pooled',[{id:71,name:'Serie A',country:'Italy',games:1,cn:1},{id:140,name:'La Liga',country:'Spain',games:1,cn:1}]), lgm, 8);
+  t('pooled: kind', pooled.source.kind, 'pooled');
+  t('pooled: quantas ligas entraram', pooled.source.fromLeagues.length, 2);
+  t('pooled: multiLeague', pooled.multiLeague, true);
+  const none = P.teamRecord(mkAgg(4,'None',[{id:999,name:'Serie C',country:'Italy',games:1,cn:0}]), lgm, 8);
+  t('none: kind', none.source.kind, 'none');
+  t('none: ainda informa onde o time jogou', none.league, 'Serie C');
+  t('none: sem media utilizavel', none.source.usable, false);
+  t('none: cornersFor null', none.cornersFor, null);
+  const insuf = P.teamRecord(mkAgg(5,'Insuf',[{id:999,name:'Serie C',country:'Italy',games:1,cn:1}]), lgm, 8);
+  t('abaixo do minimo: kind own', insuf.source.kind, 'own');
+  t('abaixo do minimo: usable false', insuf.source.usable, false);
+  t('abaixo do minimo: n=3', insuf.source.leagueAvgN, 3);
+  t('abaixo do minimo: min reportado', insuf.source.min, 8);
+  const lgm2 = await P.leagueMap({}, 2);
+  const insuf2 = P.teamRecord(mkAgg(5,'Insuf',[{id:999,name:'Serie C',country:'Italy',games:1,cn:1}]), lgm2, 2);
+  t('com min=2 a mesma liga vira utilizavel', insuf2.source.usable, true);
+  t('com min=2 o min reportado muda', insuf2.source.min, 2);
+  const list = [own, other, pooled, none, insuf];
+  t('todo time traz leagues com jogos', list.every(x => Array.isArray(x.leagues) && x.leagues.length > 0), true);
+  t('todo time traz source resolvido', list.every(x => x.source && typeof x.source.kind === 'string'), true);
+  console.log('EXEMPLO | other -> ' + JSON.stringify({ league: other.league, sourceLeague: other.sourceLeague, kind: other.sourceKind, n: other.source.leagueAvgN, cornersFor: other.cornersFor }));
+  console.log('PROXY RESUMO | fails=' + fails);
+  process.exit(fails ? 1 : 0);
+})();

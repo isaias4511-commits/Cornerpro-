@@ -1,0 +1,8 @@
+﻿"Tipo";"Grupo (liga de origem)";"#";"Time";"Origem do valor";"J";"Esc. pró";"Esc. contra";"Casa (média simples)";"Fora (média simples)";"Gols pró";"Gols contra"
+"Grupo";"Serie A";"";"1 time(s)";"1/1 com escanteio";"";"";"";"";"";"";""
+"Time";"Serie A";"1";"Flamengo";"mesma liga · n=10";"2";"11";"5";"12";"10";"2,5";"0,5"
+"Total do grupo";"Serie A";"";"1 time(s)";"1/1 com escanteio";"2";"110";"50";"12";"10";"5";"1"
+"Grupo";"Serie C";"";"1 time(s)";"0/1 com escanteio";"";"";"";"";"";"";""
+"Time";"Serie C";"1";"Vasco";"sem média";"1";"";"";"";"";"0";"2"
+"Total do grupo";"Serie C";"";"1 time(s)";"0/1 com escanteio";"1";"";"";"";"";"0";"2"
+"Total geral";"Todos os grupos (2)";"";"2 time(s)";"1/2 com escanteio";"3";"110";"50";"12";"10";"5";"3"

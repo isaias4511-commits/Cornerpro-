@@ -1,0 +1,12 @@
+name = "cornerpro-proxy"
+main = "cornerpro-proxy.js"
+compatibility_date = "2026-01-01"
+
+# A chave da API NÃO vai neste arquivo. Defina como secret:
+#   wrangler secret put APIFOOTBALL_KEY
+#
+# Origens liberadas para o navegador falar com o proxy (CORS).
+# Use "*" só para testar e depois restrinja ao domínio do app.
+# Inclua "null" se você abrir o index.html direto como arquivo local.
+[vars]
+ALLOWED_ORIGINS = "*"

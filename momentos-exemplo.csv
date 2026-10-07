@@ -1,0 +1,6 @@
+﻿"Ordem";"Minuto";"Ícone";"Evento";"Equipe";"Lado";"Observação"
+"1";"12";"🟨";"Cartão amarelo";"Time Casa a1";"Casa";"mesma linha do painel Momentos"
+"2";"23";"⚽";"Gol ""de"" cabeça; bonito";"Time Casa a1";"Casa";"mesma linha do painel Momentos"
+"3";"45";"🔁";"Substituição (intervalo)";"Time Casa a1";"Casa";"mesma linha do painel Momentos"
+"4";"67";"⚽";"Gol!";"Time Fora a1";"Fora";"mesma linha do painel Momentos"
+"Total";"4 momento(s)";"";"";"3 casa · 1 fora";"";"fonte: proxy (eventos reais do painel)"

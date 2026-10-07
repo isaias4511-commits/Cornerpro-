@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0b1220" />
+<title>CornerPro · Estatísticas de Futebol ao Vivo</title>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#0f172a; --card:#141f36; --card2:#1a2742;
+    --line:#243349; --line2:#2f4360;
+    --txt:#e8eef8; --mut:#8ba0be; --mut2:#5f7699;
+    --acc:#22e07a; --acc2:#12b866; --warn:#ffb020; --live:#ff3b5c;
+    --blue:#3b9dff; --purple:#8b5cf6; --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px; line-height:1.35; overflow-x:hidden;
+  }
+  .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:74px}
+
+  /* ---------- Header ---------- */
+  header.appbar{
+    position:sticky;top:0;z-index:40;background:rgba(11,18,32,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  }
+  .barrow{display:flex;align-items:center;gap:10px;padding:11px 14px 8px}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-.3px}
+  .logo .mark{
+    width:26px;height:26px;border-radius:8px;
+    background:linear-gradient(135deg,var(--acc),#0ea5a0);
+    display:grid;place-items:center;font-size:14px;color:#04140c;font-weight:900;
+    box-shadow:0 4px 14px rgba(34,224,122,.35)
+  }
+  .logo small{display:block;font-size:9px;color:var(--mut);font-weight:600;letter-spacing:.4px}
+  .searchbtn{
+    margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--card);
+    border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:7px 12px;font-size:12px;
+  }
+  .searchbtn:active{background:var(--card2)}
+
+  .tabs{display:flex;gap:4px;padding:0 10px 8px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--mut);
+    padding:7px 13px;border-radius:18px;font-size:12.5px;font-weight:600;
+  }
+  .tab.on{background:var(--card2);color:var(--txt);border-color:var(--line2)}
+  .tab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--live);margin-right:5px;vertical-align:middle;animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ---------- Filters strip ---------- */
+  .chipstrip{display:flex;gap:7px;padding:10px 12px;overflow-x:auto;scrollbar-width:none}
+  .chipstrip::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;background:var(--card);border:1px solid var(--line);color:var(--mut);
+    padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600}
+  .chip.on{background:rgba(34,224,122,.14);color:var(--acc);border-color:rgba(34,224,122,.45)}
+
+  /* ---------- Stats summary cards ---------- */
+  .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px 12px 10px}
+  .statcard{background:linear-gradient(160deg,var(--card),var(--bg2));border:1px solid var(--line);
+    border-radius:12px;padding:9px 10px}
+  .statcard b{font-size:18px;display:block;letter-spacing:-.5px}
+  .statcard span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .statcard.g b{color:var(--acc)} .statcard.b b{color:var(--blue)} .statcard.o b{color:var(--warn)}
+
+  /* ---------- League blocks + match rows ---------- */
+  .leagueblock{margin:0 8px 12px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .leaguehead{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);
+    font-size:12px;font-weight:700;color:var(--txt);border-bottom:1px solid var(--line)}
+  .leaguehead .flag{font-size:14px}
+  .leaguehead .cnt{margin-left:auto;font-size:10.5px;color:var(--mut);font-weight:600}
+  .matchrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;
+    padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+  .matchrow:last-child{border-bottom:0}
+  .matchrow:active{background:var(--card2)}
+  .team{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;font-weight:600}
+  .team.away{flex-direction:row-reverse;text-align:right}
+  .team .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .badge{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;
+    font-weight:800;color:#fff;flex:none}
+  .mid{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px}
+  .sc{font-weight:800;font-size:15px;letter-spacing:.5px}
+  .sc .sep{color:var(--mut2);margin:0 3px;font-weight:600}
+  .min{font-size:10px;font-weight:700;color:var(--live)}
+  .min.live::before{content:"●";margin-right:3px;font-size:7px;vertical-align:middle}
+  .min.time{color:var(--mut)}
+  .min.ft{color:var(--mut);letter-spacing:.5px}
+  .mini{display:flex;justify-content:center;gap:3px;margin-top:2px}
+  .corner-pill{font-size:9.5px;color:var(--warn);font-weight:700;background:rgba(255,176,32,.12);
+    padding:1px 5px;border-radius:6px}
+  .favstar{font-size:14px;color:var(--mut2);flex:none;padding-left:2px}
+
+  /* ---------- Detail panel (slide-over) ---------- */
+  .panel{position:fixed;inset:0;z-index:60;background:var(--bg);transform:translateX(100%);
+    transition:transform .28s ease;overflow-y:auto;padding-bottom:40px}
+  .panel.open{transform:none}
+  .panelinner{max-width:480px;margin:0 auto}
+  .phead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
+    padding:13px 14px;background:rgba(11,18,32,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .back{background:var(--card);border:1px solid var(--line);color:var(--txt);width:34px;height:34px;
+    border-radius:10px;font-size:16px;display:grid;place-items:center}
+  .phead .ttl{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .phead .sub{font-size:11px;color:var(--mut)}
+
+  .scorebox{margin:14px 12px;background:linear-gradient(160deg,var(--card),var(--bg2));
+    border:1px solid var(--line);border-radius:var(--radius);padding:16px 12px}
+  .scoreline{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+  .steam{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+  .steam .badge{width:44px;height:44px;border-radius:12px;font-size:17px}
+  .steam .nm{font-size:12.5px;font-weight:700}
+  .bigscore{font-size:30px;font-weight:900;letter-spacing:-1px}
+  .bigscore .sep{color:var(--mut2);margin:0 6px}
+  .statusline{text-align:center;margin-top:10px;font-size:11.5px;color:var(--mut);font-weight:600}
+  .statusline .live{color:var(--live)}
+
+  .secttl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);
+    margin:18px 14px 8px;display:flex;align-items:center;gap:7px}
+  .secttl::after{content:"";flex:1;height:1px;background:var(--line)}
+  .card{margin:0 12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+
+  /* stats bars */
+  .statrow{margin-bottom:11px}
+  .statrow .top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px}
+  .statrow .top .lab{color:var(--mut);font-weight:600;font-size:11px}
+  .bar{height:7px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .bar .h{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+  .bar .a{background:linear-gradient(90deg,#3b9dff,#2563eb)}
+
+  /* events */
+  .evt{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .evt:last-child{border-bottom:0}
+  .evt .m{width:30px;font-weight:800;color:var(--mut);font-size:11px}
+  .evt .ic{width:20px;text-align:center;font-size:13px}
+  .evt .tx{color:var(--mut);font-size:11.5px}
+
+  /* corner periods */
+  .periodgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .periodgrid .pc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+  .periodgrid .pc span{font-size:9.5px;color:var(--mut);display:block;font-weight:700;letter-spacing:.4px}
+  .periodgrid .pc b{font-size:15px}
+
+  /* pressure canvas */
+  canvas{width:100%;display:block;border-radius:10px}
+
+  /* H2H */
+  .h2h{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700}
+  .h2h .col{flex:1;text-align:center}
+  .h2h .col b{font-size:16px;display:block}
+  .h2h .col .mut{color:var(--mut);font-size:10px;font-weight:600}
+  .h2h .midcol b{font-size:12px;color:var(--mut)}
+
+  /* ---------- Bots ---------- */
+  .page{display:none}
+  .page.on{display:block}
+  .botcard{margin:0 12px 10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+  .botcard .row1{display:flex;align-items:center;gap:9px}
+  .botcard .nm{font-weight:700;font-size:13.5px}
+  .botcard .crit{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .botcard .last{font-size:10.5px;color:var(--mut2);margin-top:6px}
+  .switch{margin-left:auto;width:40px;height:23px;border-radius:14px;background:var(--line2);position:relative;transition:.2s;flex:none}
+  .switch.on{background:var(--acc)}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;
+    background:#fff;transition:.2s}
+  .switch.on::after{left:20px}
+  .addbtn{display:block;width:calc(100% - 24px);margin:12px;padding:13px;border-radius:12px;
+    background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140c;font-weight:800;font-size:13.5px;
+    border:0;box-shadow:0 6px 18px rgba(34,224,122,.3)}
+  .empty{text-align:center;color:var(--mut);padding:36px 24px;font-size:12.5px}
+  .empty .big{font-size:34px;display:block;margin-bottom:10px;opacity:.5}
+
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;z-index:80;background:rgba(4,8,16,.7);backdrop-filter:blur(3px);
+    display:none;align-items:flex-end;justify-content:center}
+  .overlay.on{display:flex}
+  .sheet{width:100%;max-width:480px;background:var(--bg2);border:1px solid var(--line);
+    border-radius:20px 20px 0 0;padding:18px 16px 26px;max-height:88vh;overflow-y:auto}
+  .sheet h3{margin:0 0 4px;font-size:16px}
+  .sheet p.hint{margin:0 0 14px;font-size:11.5px;color:var(--mut)}
+  label.fld{display:block;font-size:11px;color:var(--mut);font-weight:700;margin:12px 0 5px;text-transform:uppercase;letter-spacing:.4px}
+  input[type=text],select,input[type=number]{width:100%;background:var(--card);border:1px solid var(--line2);
+    color:var(--txt);border-radius:10px;padding:11px;font-size:13.5px;font-family:inherit}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sheetbtns{display:flex;gap:10px;margin-top:18px}
+  .sheetbtns button{flex:1;padding:13px;border-radius:12px;font-weight:800;font-size:13.5px;border:0}
+  .ghost{background:var(--card);color:var(--txt);border:1px solid var(--line2)!important}
+  .primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140c}
+
+  /* ---------- Search ---------- */
+  .searchwrap{padding:12px}
+  .searchwrap input{margin-bottom:8px}
+  .sres{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px}
+  .sres .t{font-weight:700;font-size:13px}
+  .sres .s{font-size:11px;color:var(--mut);margin-top:2px}
+
+  /* ---------- bottom nav ---------- */
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(11,18,32,.95);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;max-width:480px;margin:0 auto}
+  nav.bottom button{flex:1;background:transparent;border:0;color:var(--mut2);padding:9px 0 11px;
+    font-size:9.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px}
+  nav.bottom button .ic{font-size:18px}
+  nav.bottom button.on{color:var(--acc)}
+
+  .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);z-index:90;
+    background:var(--card2);border:1px solid var(--line2);color:var(--txt);padding:11px 16px;border-radius:12px;
+    font-size:12.5px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;max-width:90%}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .foot{text-align:center;font-size:10px;color:var(--mut2);padding:18px 20px 8px;line-height:1.6}
+  .secttl .csvbtn{margin-left:8px;width:auto;height:24px;padding:0 9px;font-size:10px;font-weight:800;
+    letter-spacing:.3px;text-transform:none;color:var(--mut);gap:4px}
+  .secttl .csvbtn:active{color:var(--txt);background:var(--card2)}
+  .secttl .csvbtn[disabled]{opacity:.45;cursor:not-allowed}
+
+  /* ---------- Fonte de dados ---------- */
+  .icobtn{background:var(--card);border:1px solid var(--line);color:var(--txt);width:34px;height:34px;
+    border-radius:10px;font-size:15px;display:grid;place-items:center;flex:none}
+  .icobtn.sm{width:26px;height:26px;font-size:13px;border-radius:8px}
+  .icobtn:active{background:var(--card2)}
+  .srcbar{display:flex;align-items:center;gap:8px;padding:0 12px 9px;font-size:10.5px;color:var(--mut)}
+  .srcmeta{margin-left:auto;text-align:right;color:var(--mut2);line-height:1.3;max-width:52%;overflow:hidden}
+  .statuspill{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;
+    padding:4px 9px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--mut);
+    white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .statuspill .d{width:7px;height:7px;border-radius:50%;background:var(--mut2);flex:none}
+  .statuspill.real{color:var(--acc);border-color:rgba(34,224,122,.45)}
+  .statuspill.real .d{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+  .statuspill.mock{color:var(--warn);border-color:rgba(255,176,32,.45)}
+  .statuspill.mock .d{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+  .statuspill.err{color:var(--live);border-color:rgba(255,59,92,.45)}
+  .statuspill.err .d{background:var(--live);box-shadow:0 0 8px var(--live)}
+  .statuspill.loading .d{background:var(--blue);animation:pulse 1s infinite}
+  .badge img{width:78%;height:78%;object-fit:contain}
+  .notice{margin:0 12px 12px;background:rgba(59,157,255,.09);border:1px solid rgba(59,157,255,.35);
+    border-radius:var(--radius);padding:11px 12px;font-size:11.5px;color:#bcd7f7;line-height:1.5}
+  .notice b{color:#fff}
+  .notice.mock{background:rgba(255,176,32,.09);border-color:rgba(255,176,32,.35);color:#f3dcb0}
+  .notice.err{background:rgba(255,59,92,.09);border-color:rgba(255,59,92,.35);color:#f7c1cb}
+  .notice button{margin-top:9px;background:var(--card);border:1px solid var(--line2);color:var(--txt);
+    padding:8px 12px;border-radius:9px;font-size:11.5px;font-weight:700;display:block}
+  .srcfoot{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .srcfoot span{font-size:10px;background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:3px 7px;color:var(--mut)}
+  dialog{color:var(--txt)}
+
+  /* ---------- Ranking: seletor + tabela de médias por time ---------- */
+  .segwrap{padding:12px 12px 0}
+  .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+  .seg button{flex:1;background:transparent;border:1px solid transparent;color:var(--mut);padding:8px;
+    border-radius:9px;font-size:12px;font-weight:700}
+  .seg button.on{background:var(--card2);color:var(--txt);border-color:var(--line2)}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.tavg{width:100%;border-collapse:collapse;font-size:11.5px;min-width:560px}
+  table.tavg th{position:sticky;top:0;z-index:3;background:var(--card);color:var(--mut);font-size:9.5px;
+    text-transform:uppercase;letter-spacing:.4px;padding:8px 7px;text-align:right;white-space:nowrap;
+    border-bottom:1px solid var(--line);cursor:pointer}
+  table.tavg th.on{color:var(--acc)}
+  table.tavg td{padding:8px 7px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.tavg tr:last-child td{border-bottom:0}
+  table.tavg th:first-child,table.tavg td:first-child{text-align:left;position:sticky;left:0;z-index:2;background:var(--card)}
+  table.tavg td.team{font-weight:700}
+  table.tavg td.team .badge{width:18px;height:18px;font-size:9px;border-radius:5px;margin-right:6px}
+  table.tavg td.team .pos{display:inline-block;width:22px;color:var(--mut);font-weight:800}
+  table.tavg td.team .nm{display:inline-block;max-width:132px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+  table.tavg .hi{color:var(--warn);font-weight:800}
+  table.tavg tbody tr:active{background:var(--card2)}
+
+  /* ---------- Gráfico de evolução ---------- */
+  .seg.sm{padding:2px}
+  .seg.sm button{padding:6px;font-size:11px;border-radius:8px}
+  .chartchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .cchip{display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--line);
+    color:var(--mut);padding:4px 9px;border-radius:14px;font-size:10.5px;font-weight:700}
+  .cchip .d{width:7px;height:7px;border-radius:50%;background:var(--c,#5f7699);flex:none}
+  .cchip.on{color:var(--txt);border-color:var(--c,#22e07a)}
+  .chartcap{font-size:10px;color:var(--mut2);margin-top:9px;text-align:center;line-height:1.5}
+  table.tavg tbody tr.inchart td:first-child{box-shadow:inset 3px 0 0 var(--c,#22e07a)}
+
+.imgbadge{display:inline-block;font-size:9.5px;font-weight:700;color:var(--warn);background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.35);border-radius:999px;padding:1px 7px;margin-left:6px;cursor:help}
+.imgbadge.off{color:var(--mut2);background:rgba(95,118,153,.12);border-color:rgba(95,118,153,.3)}
+.corner-pill.imp{border-style:dashed}
+.lgind{color:var(--mut2);font-size:10px}
+.lgind b{color:var(--warn)}
+.nodata{font-size:11.5px;color:var(--mut);margin-top:8px}
+.lgcell{white-space:nowrap}
+.lgcell .lgnm{color:var(--txt)}
+.imgbadge.alt{color:#3b9dff;background:rgba(59,157,255,.12);border-color:rgba(59,157,255,.35)}
+.lglegend{font-size:10.5px;color:var(--mut2);padding:9px 12px;border-top:1px solid var(--line);line-height:1.55}
+.lglegend b{color:var(--mut)}
+/* ---------- Agrupamento da tabela por liga de origem ---------- */
+table.tavg tr.grouphdr td{background:var(--bg2);border-bottom:1px solid var(--line2);padding:7px 10px;cursor:pointer}
+table.tavg tr.grouphdr td:first-child{background:var(--bg2);position:static}
+table.tavg tr.grouphdr.unknown td{background:rgba(95,118,153,.10)}
+table.tavg tr.grouphdr.collapsed td{opacity:.8}
+table.tavg tr.grouphdr:active td{background:var(--card2)}
+.grouphdr .gwrap{display:flex;align-items:center;gap:7px;font-size:11px;text-align:left}
+.grouphdr .caret{color:var(--mut2);font-size:9px;width:9px;flex:none}
+.grouphdr .gname{font-weight:800;color:var(--txt)}
+.grouphdr .gcnt{color:var(--mut2);font-weight:700}
+.grouphdr .gmeta{margin-left:auto;color:var(--mut2);font-size:10px;white-space:nowrap;text-align:right}
+.grouphdr .gmeta b{color:var(--warn)}
+.grouphdr .imgbadge{margin-left:0}
+/* ---------- Linha de totais por grupo ---------- */
+table.tavg tr.grouptotal td{background:rgba(255,176,32,.055);border-bottom:1px solid var(--line2);
+  font-size:11px;color:var(--mut);font-weight:700;padding:7px}
+table.tavg tr.grouptotal td:first-child{background:rgba(255,176,32,.055);position:static}
+table.tavg tr.grouptotal td.hi{color:var(--warn)}
+table.tavg tr.grouptotal .sumlbl{color:var(--mut2);font-weight:800}
+table.tavg tr.grouptotal .lgsub{color:var(--mut2);font-size:10px}
+table.tavg tr.grouptotal i.m{font-style:normal;font-size:8.5px;color:var(--mut2);margin-right:3px}
+/* ---------- Linha de total geral (todos os grupos) ---------- */
+table.tavg tr.grandtotal td{background:var(--bg2);border-top:2px solid var(--line2);border-bottom:0;
+  font-size:11.5px;color:var(--txt);font-weight:800;padding:9px 7px}
+table.tavg tr.grandtotal td:first-child{background:var(--bg2);position:static}
+table.tavg tr.grandtotal td.hi{color:var(--warn)}
+table.tavg tr.grandtotal .sumlbl{color:var(--txt);font-weight:800;letter-spacing:.2px}
+table.tavg tr.grandtotal .lgsub{color:var(--mut2);font-size:10px;font-weight:700}
+table.tavg tr.grandtotal i.m{font-style:normal;font-size:8.5px;color:var(--mut2);margin-right:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="barrow">
+      <div class="logo">
+        <span class="mark">C</span>
+        <span>CornerPro<small>FUTEBOL · AO VIVO</small></span>
+      </div>
+      <button class="icobtn" id="openSearch" title="Busca avançada">🔍</button>
+      <button class="icobtn" id="openCfg" title="Fonte de dados">⚙️</button>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-filter="live"><span class="dot"></span>Ao Vivo</button>
+      <button class="tab" data-filter="scheduled">Agendados</button>
+      <button class="tab" data-filter="finished">Finalizados</button>
+      <button class="tab" data-filter="fav">★ Favoritos</button>
+      <button class="tab" data-filter="all">Todos</button>
+    </div>
+    <div class="srcbar">
+      <span class="statuspill loading" id="statusPill"><span class="d"></span><span id="statusTxt">Inicializando…</span></span>
+      <span class="srcmeta" id="srcMeta"></span>
+      <button class="icobtn sm" id="refreshBtn" title="Atualizar agora">⟳</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME PAGE -->
+    <section class="page on" id="pageHome">
+      <div class="statgrid">
+        <div class="statcard g"><b id="kpiLive">0</b><span>Ao vivo</span></div>
+        <div class="statcard b"><b id="kpiGames">0</b><span>Jogos hoje</span></div>
+        <div class="statcard o"><b id="kpiCorners">0</b><span>Escanteios</span></div>
+      </div>
+      <div class="chipstrip" id="leagues"></div>
+      <div id="list"></div>
+      <p class="foot">Clone de estudo, sem vínculo com o CornerPro oficial. A origem dos dados está no aviso acima — real (API) ou simulada.</p>
+    </section>
+
+    <!-- BOTS PAGE -->
+    <section class="page" id="pageBots">
+      <div class="secttl" style="margin-top:14px">Bots de alerta</div>
+      <div id="botList"></div>
+      <button class="addbtn" id="openBot">＋ Criar novo bot</button>
+      <p class="foot">Os bots monitoram os jogos ao vivo e disparam alertas quando os critérios são atingidos (simulado).<br>Preferências salvas neste dispositivo.</p>
+    </section>
+
+    <!-- RANKINGS PAGE -->
+    <section class="page" id="pageRank">
+      <div class="segwrap">
+        <div class="seg" id="rankSeg">
+          <button class="on" data-view="match">Por jogo</button>
+          <button data-view="team">Médias por time</button>
+        </div>
+      </div>
+
+      <div id="rankViewMatch">
+        <div class="secttl" style="margin-top:14px">Ranking de escanteios<button class="icobtn sm csvbtn" id="exportRankCsv" title="Baixar o ranking em CSV (posição, liga, situação e escanteios)">⤓ CSV</button></div>
+        <div class="card" id="rankCard" style="padding:0"></div>
+        <p class="foot">Jogos com maior volume de escanteios na amostra carregada.</p>
+      </div>
+
+      <div id="rankViewTeam" style="display:none">
+        <div class="secttl" style="margin-top:14px">Evolução das médias</div>
+        <div class="card">
+          <div class="seg sm" id="chartMetric">
+            <button class="on" data-metric="cf">Esc. pró</button>
+            <button data-metric="ca">Esc. contra</button>
+            <button data-metric="gf">Gols pró</button>
+          </div>
+          <canvas id="teamChart" height="190" style="margin-top:12px"></canvas>
+          <div class="empty" id="teamChartEmpty" style="display:none;padding:16px 8px"></div>
+          <div class="chartchips" id="chartChips"></div>
+          <div class="chartcap" id="chartCap"></div>
+        </div>
+
+        <div class="secttl">Médias por time<button class="icobtn sm csvbtn" id="exportTeamCsv" title="Baixar a tabela em CSV (com grupos, origem e totais)">⤓ CSV</button></div>
+        <div class="card" id="teamCard" style="padding:0"></div>
+        <p class="foot" id="teamFoot"></p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom" id="nav">
+    <button class="on" data-page="home"><span class="ic">⚽</span>Jogos</button>
+    <button data-page="rank"><span class="ic">📊</span>Ranking</button>
+    <button data-page="bots"><span class="ic">🤖</span>Bots</button>
+  </nav>
+</div>
+
+<!-- DETAIL PANEL -->
+<aside class="panel" id="panel">
+  <div class="panelinner" id="panelBody"></div>
+</aside>
+
+<!-- SEARCH OVERLAY -->
+<div class="overlay" id="searchOverlay">
+  <div class="sheet">
+    <h3>Busca avançada</h3>
+    <p class="hint">Encontre times, ligas ou jogos por nome.</p>
+    <div class="searchwrap" style="padding:0">
+      <input type="text" id="searchInput" placeholder="Ex.: Flamengo, Premier League..." />
+      <div id="searchResults"></div>
+    </div>
+    <div class="sheetbtns"><button class="ghost" id="closeSearch">Fechar</button></div>
+  </div>
+</div>
+
+<!-- BOT CREATOR OVERLAY -->
+<div class="overlay" id="botOverlay">
+  <div class="sheet">
+    <h3>Criar bot de alerta</h3>
+    <p class="hint">Configure um critério e o app avisa quando acontecer ao vivo.</p>
+    <label class="fld">Nome do bot</label>
+    <input type="text" id="bName" placeholder="Ex.: Muitos escanteios" />
+    <label class="fld">Critério</label>
+    <select id="bCrit">
+      <option value="corners">Escanteios totais ≥</option>
+      <option value="goals">Gols totais ≥</option>
+      <option value="cards">Cartões totais ≥</option>
+      <option value="sot">Chutes no gol ≥</option>
+    </select>
+    <div class="grid2">
+      <div>
+        <label class="fld">Valor limite</label>
+        <input type="number" id="bVal" value="9" min="1" max="40" />
+      </div>
+      <div>
+        <label class="fld">Período</label>
+        <select id="bPer">
+          <option value="match">Jogo inteiro</option>
+          <option value="1h">1º tempo</option>
+          <option value="2h">2º tempo</option>
+        </select>
+      </div>
+    </div>
+    <div class="sheetbtns">
+      <button class="ghost" id="closeBot">Cancelar</button>
+      <button class="primary" id="saveBot">Criar bot</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATA SOURCE OVERLAY -->
+<div class="overlay" id="cfgOverlay">
+  <div class="sheet">
+    <h3>Fonte de dados</h3>
+    <p class="hint">Escolha de onde o app busca os jogos. A configuração fica salva só neste navegador.</p>
+    <label class="fld">Provedor</label>
+    <select id="cfgProvider">
+      <option value="demo">Demonstração — dados simulados (offline)</option>
+      <option value="tsdb">TheSportsDB — real e grátis, sem cadastro</option>
+      <option value="proxy">API-Football via proxy — real com estatísticas (chave no servidor)</option>
+    </select>
+    <label class="fld">Chave TheSportsDB</label>
+    <input type="text" id="cfgTsdb" placeholder="3" autocomplete="off" />
+    <label class="fld">URL do seu proxy</label>
+    <input type="text" id="cfgProxy" placeholder="https://cornerpro-proxy.SEU-USUARIO.workers.dev" autocomplete="off" />
+    <label class="fld">Amostra mínima por liga (partidas com estatística real)</label>
+    <input type="text" id="cfgMin" placeholder="8" autocomplete="off" />
+    <p class="hint" style="margin-top:6px">Define a partir de quantas partidas reais a média de uma liga pode preencher um escanteio ausente. Abaixo disso, o campo fica <b>—</b>. O mesmo valor é enviado ao proxy (<i>?min=</i>) para os dois lados usarem o mesmo corte.</p>
+    <p class="hint" style="margin-top:14px">🔒 <b>A chave da API-Football não fica aqui.</b> Ela vive como <i>secret</i> no Worker (v2), que agrega e cacheia os dados no servidor — o navegador faz <b>uma</b> chamada por atualização em vez de seis. Se você já expôs sua chave, <b>revogue-a</b> em dashboard.api-football.com. Deploy: veja <b>cornerpro-proxy.js</b>.</p>
+    <div class="sheetbtns" style="margin-top:14px">
+      <button class="ghost" id="testCfg">Testar proxy</button>
+      <button class="primary" id="saveCfg">Salvar e recarregar</button>
+    </div>
+    <div class="sheetbtns" style="margin-top:10px">
+      <button class="ghost" id="closeCfg">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CornerPro — clone de estudo (estatísticas de futebol ao vivo)
+   Duas fontes reais + uma simulada:
+     · TheSportsDB  — API real, gratuita e aberta (sem cadastro)
+     · API-Football — API real com estatísticas, via PROXY próprio
+     · Demonstração — conjunto simulado local (offline)
+   NENHUMA chave de API existe neste arquivo: o proxy (Worker) é quem
+   guarda o segredo e assina as chamadas. Veja PROXY_BASE abaixo.
+   ============================================================ */
+
+/* ---------- Utilidades de dados ---------- */
+const ABORT = new AbortController();
+function fetchJson(url, opts){
+  return fetch(url, Object.assign({ cache:'no-store', signal:ABORT.signal }, opts || {})).then(r => {
+    if (!r.ok){
+      return r.text().then(t => {
+        let msg = '';
+        try { const j = JSON.parse(t); msg = j.error || j.message || (j.errors && JSON.stringify(j.errors)) || ''; }
+        catch(e){ msg = String(t || '').slice(0, 140); }
+        const e = new Error('HTTP ' + r.status + (msg ? ' · ' + msg : ''));
+        e.status = r.status; throw e;
+      });
+    }
+    return r.json();
+  });
+}
+const PRIORITY = { live:0, scheduled:1, finished:2 };
+const LEAGUE_FLAG = {
+  '4328':'🏴','4335':'🇪🇸','4332':'🇮🇹','4331':'🇩🇪','4344':'🇵🇹','4334':'🇫🇷',
+  '4351':'🇧🇷','4406':'🇦🇷','4480':'🇦🇷','4350':'🇲🇽','4329':'🇳🇱','4481':'🇩🇪'
+};
+function dayOffset(n){ const d = new Date(); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0,10); }
+function brDate(iso){ if (!iso) return ''; const p = String(iso).slice(0,10).split('-'); return p[2] + '/' + p[1]; }
+function blankStats(){ return { possession:[50,50], shots:[0,0], sot:[0,0], corners:[0,0], cards:[0,0], fouls:[0,0], real:false }; }
+const rndInt = (a,b) => { a = Math.ceil(a); b = Math.floor(b); return a + Math.floor(Math.random() * (b - a + 1)); };
+
+/* ---------- Utilidades ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = arr => arr[rnd(0, arr.length - 1)];
+const LS = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+/* ---------- Configuração da fonte de dados ---------- */
+/* ============================================================
+   Médias de escanteios por liga — CACHE LOCAL (mesma camada localStorage)
+   Alimentado pelo proxy (/derive/board e /derive/teamavg -> leagueAverages),
+   reaproveitado no reload com TTL de 24h. Sem amostra (n < MIN_LG_SAMPLES)
+   NÃO existe média: o escanteio fica em branco em vez de ser inventado.
+   ============================================================ */
+const LGA_KEY = 'cp_lgavg_v1';
+const LGA_TTL = 24 * 3600 * 1000;
+const MIN_LG_SAMPLES = 8;
+/* Limite efetivo: o valor do ⚙️ (1–50) sobrescreve o padrão de 8. */
+function minSamples(){
+  const v = parseInt((CFG && CFG.minSamples), 10);
+  return (isFinite(v) && v >= 1) ? Math.min(50, v) : MIN_LG_SAMPLES;
+}
+function splitCorners(n){
+  const o = [0,0,0,0], k = Math.max(0, parseInt(n, 10) || 0);
+  for (let i=0;i<k;i++) o[Math.min(3, Math.floor((i / Math.max(1,k)) * 4))]++;
+  return o;
+}
+function lgaLoad(){
+  const o = LS.get(LGA_KEY, null);
+  if (o && o.leagues && (Date.now() - (o.updated || 0)) < LGA_TTL) return o;
+  return { updated: 0, leagues: {} };
+}
+/* Funde o mapa vindo do proxy (só cresce: mantém a amostra maior). */
+function lgaMerge(incoming){
+  const cur = lgaLoad();
+  if (!incoming) return cur;
+  let changed = false;
+  Object.keys(incoming).forEach(k => {
+    const e = incoming[k]; if (!e || !e.n) return;
+    const old = cur.leagues[k];
+    if (!old || e.n > old.n || e.perMatch !== old.perMatch){
+      cur.leagues[k] = { name: (e.name || (old && old.name) || ''), n: e.n, perMatch: e.perMatch };
+      changed = true;
+    }
+  });
+  if (changed){ cur.updated = Date.now(); LS.set(LGA_KEY, { updated: cur.updated, leagues: cur.leagues }); }
+  return cur;
+}
+function lgaNorm(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+/* Procura a média da liga do jogo: id ('A123' -> '123', 'L4351' -> '4351') ou nome. */
+function lgaFor(m){
+  if (!m) return null;
+  const L = lgaLoad().leagues || {};
+  const id = String(m.league || '').replace(/^[AL]/, '');
+  if (id && L[id]) return L[id];
+  const nm = lgaNorm(m.leagueName);
+  if (!nm) return null;
+  const byName = L['n:' + nm];
+  if (byName) return byName;
+  const k = Object.keys(L).find(x => L[x] && lgaNorm(L[x].name) === nm);
+  return k ? L[k] : null;
+}
+function lgaUsable(l){ return !!(l && l.n >= minSamples() && l.perMatch > 0); }
+function lgaStats(){
+  const all = Object.keys(lgaLoad().leagues || {}).map(k => lgaLoad().leagues[k]).filter(Boolean);
+  const min = minSamples();
+  const missing = all.filter(l => l && (l.n || 0) < min)
+    .map(l => ({ name: l.name || '?', n: l.n || 0, need: min - (l.n || 0) }))
+    .sort((a, b) => a.need - b.need);
+  return { leagues: all.length, usable: all.filter(lgaUsable).length, min,
+    samples: all.reduce((s,l) => s + (l.n || 0), 0), max: all.reduce((m,l) => Math.max(m, l.n || 0), 0),
+    missing, needMore: missing.length };
+}
+/* Quantas partidas ainda faltam para uma liga entrar em uso. */
+function lgaNeed(l){
+  const min = minSamples();
+  const n = (l && l.n) || 0;
+  return n >= min ? 0 : (min - n);
+}
+/* Selo visual: distingue dado real / preenchido pela média da liga / ausente. */
+function lgaBadge(l){
+  const ok = lgaUsable(l);
+  const need = lgaNeed(l);
+  const tip = ok
+    ? 'Preenchido pela média REAL da liga em cache · ' + l.n + ' partidas com estatística oficial'
+    : (l ? 'Liga com ' + ((l.n) || 0) + ' partida(s) na amostra — faltam ' + need + ' para atingir o mínimo de ' + minSamples() + '. Escanteios deixados em branco.'
+         : 'Sem média desta liga no cache (mínimo ' + minSamples() + ' partidas) — escanteios deixados em branco');
+  const txt = ok ? ('média da liga · n=' + l.n) : (l ? ('faltam ' + need + ' de ' + minSamples()) : 'sem amostra');
+  return '<span class="imgbadge' + (ok ? '' : ' off') + '" title="' + tip + '">≈' + txt + '</span>';
+}
+
+const CFG_KEY = 'cp_cfg_v2';
+/* URL base do seu proxy. Pode deixar vazio e configurar pela interface (⚙️).
+   Ex.: 'https://cornerpro-proxy.seu-usuario.workers.dev' */
+const PROXY_BASE = '';
+const CFG = Object.assign({ provider:'demo', tsdb:'3', proxy:PROXY_BASE }, LS.get(CFG_KEY, {}));
+const PROVIDERS = {
+  tsdb:{ src:'api', name:'TheSportsDB', note:'dados reais · estatísticas da partida não disponíveis no plano gratuito',
+    credit:'TheSportsDB · https://www.thesportsdb.com/free_sports_api' },
+  proxy:{ src:'api', name:'API-Football (proxy)', note:'dados reais · escanteios, cartões e chutes ao vivo · a chave fica no servidor, nunca neste arquivo',
+    credit:'API-Football via proxy próprio · https://www.api-football.com/documentation-v3' },
+  demo:{ src:'local', name:'Demonstração', note:'dados simulados localmente — sem conexão externa',
+    credit:'Conjunto simulado · sem vínculo com o CornerPro oficial' }
+};
+function proxyBase(){ return String(CFG.proxy || '').trim().replace(/\/+$/, ''); }
+const prov = () => PROVIDERS[CFG.provider] || PROVIDERS.demo;
+function setStatus(kind, txt){
+  const p = $('#statusPill'), t = $('#statusTxt'); if (!p) return;
+  p.className = 'statuspill ' + kind; t.textContent = txt;
+}
+
+/* ---------- Base de dados simulada ---------- */
+let LEAGUES = [
+  { id:'eng', name:'Premier League', flag:'🏴', country:'Inglaterra' },
+  { id:'esp', name:'La Liga', flag:'🇪🇸', country:'Espanha' },
+  { id:'ita', name:'Serie A', flag:'🇮🇹', country:'Itália' },
+  { id:'ger', name:'Bundesliga', flag:'🇩🇪', country:'Alemanha' },
+  { id:'bra', name:'Brasileirão Série A', flag:'🇧🇷', country:'Brasil' },
+  { id:'arg', name:'Liga Profesional', flag:'🇦🇷', country:'Argentina' },
+  { id:'pt',  name:'Liga Portugal', flag:'🇵🇹', country:'Portugal' },
+  { id:'fra', name:'Ligue 1', flag:'🇫🇷', country:'França' }
+];
+
+const TEAMS = {
+  eng:[['Arsenal','#ef4444','ARS'],['Liverpool','#dc2626','LIV'],['Manchester City','#38bdf8','MCI'],['Chelsea','#3b82f6','CHE'],['Tottenham','#e2e8f0','TOT'],['Newcastle','#111827','NEW']],
+  esp:[['Real Madrid','#e5e7eb','RMA'],['Barcelona','#a50044','BAR'],['Atlético Madrid','#ef4444','ATM'],['Sevilla','#dc2626','SEV'],['Villarreal','#facc15','VIL'],['Betis','#16a34a','BET']],
+  ita:[['Inter','#1e3a8a','INT'],['Milan','#ef4444','MIL'],['Juventus','#111827','JUV'],['Napoli','#0ea5e9','NAP'],['Roma','#7f1d1d','ROM'],['Lazio','#7dd3fc','LAZ']],
+  ger:[['Bayern','#dc2626','FCB'],['Dortmund','#facc15','BVB'],['Leverkusen','#111827','B04'],['Leipzig','#dc2626','RBL'],['Stuttgart','#e5e7eb','VFB'],['Frankfurt','#111827','SGE']],
+  bra:[['Flamengo','#dc2626','FLA'],['Palmeiras','#16a34a','PAL'],['Corinthians','#111827','COR'],['São Paulo','#dc2626','SAO'],['Fluminense','#7f1d1d','FLU'],['Grêmio','#0ea5e9','GRE']],
+  arg:[['River Plate','#e5e7eb','RIV'],['Boca Juniors','#1e3a8a','BOC'],['Racing','#7dd3fc','RAC'],['Independiente','#dc2626','IND'],['San Lorenzo','#1e3a8a','SLO'],['Vélez','#e5e7eb','VEL']],
+  pt:[['Benfica','#dc2626','BEN'],['Porto','#1e3a8a','POR'],['Sporting','#16a34a','SCP'],['Braga','#dc2626','BRA'],['Vitória','#e5e7eb','VIT'],['Boavista','#111827','BOA']],
+  fra:[['PSG','#1e3a8a','PSG'],['Marseille','#7dd3fc','OM'],['Lyon','#e5e7eb','OL'],['Monaco','#dc2626','ASM'],['Lille','#dc2626','LIL'],['Nice','#111827','NCE']]
+};
+
+let MATCHES = [];
+let matchSeq = 1;
+
+function makeStats(liveMinute, finished){
+  const p = rnd(38, 62);
+  return {
+    possession:[p, 100-p],
+    shots:[rnd(4,18), rnd(4,18)],
+    sot:[rnd(1,8), rnd(1,8)],
+    corners:[rnd(0,9), rnd(0,9)],
+    cards:[rnd(0,4), rnd(0,4)],
+    fouls:[rnd(4,16), rnd(4,16)]
+  };
+}
+
+function buildMatch(lg, home, away, status){
+  const st = status;
+  let minute = 0, sh = 0, sa = 0;
+  if (st === 'live'){ minute = rnd(6, 89); sh = rnd(0,3); sa = rnd(0,3); }
+  if (st === 'finished'){ minute = 90; sh = rnd(0,4); sa = rnd(0,4); }
+  const stats = makeStats(minute, st === 'finished');
+  if (st === 'scheduled'){ stats.possession=[50,50]; stats.shots=[0,0]; stats.sot=[0,0]; stats.corners=[0,0]; stats.cards=[0,0]; stats.fouls=[0,0]; }
+
+  // distribuição de escanteios por período coerente com o total
+  const cH = stats.corners[0], cA = stats.corners[1];
+  const split = (n) => { // divide total em 4 fatias de 15min
+    const out = [0,0,0,0]; for (let i=0;i<n;i++) out[rnd(0,3)]++; return out;
+  };
+  const cornersPeriod = { home: split(cH), away: split(cA) };
+
+  // pressão: série de 30 amostras (0-100) por time
+  const pressure = { home:[], away:[] };
+  let a = rnd(35,60), b = rnd(35,60);
+  for (let i=0;i<30;i++){ a = Math.max(5,Math.min(95,a+rnd(-9,9))); b = Math.max(5,Math.min(95,b+rnd(-9,9))); pressure.home.push(a); pressure.away.push(b); }
+
+  const events = [];
+  const evtPool = [
+    ['⚽','Gol!'], ['🟨','Cartão amarelo'], ['🟥','Cartão vermelho'],
+    ['🔁','Substituição'], ['📺','VAR — checando lance'], ['🟨','Cartão amarelo']
+  ];
+  const nEv = st === 'scheduled' ? 0 : rnd(2,6);
+  for (let i=0;i<nEv;i++){ const e = pick(evtPool); events.push({ min: rnd(1, minute||90), ic:e[0], tx:e[1], side: pick(['home','away']) }); }
+  events.sort((x,y)=>x.min-y.min);
+
+  return {
+    id:'m'+(matchSeq++), league:lg.id, leagueName:lg.name, flag:lg.flag,
+    home:{ name:home[0], color:home[1], abbr:home[2] }, away:{ name:away[0], color:away[1], abbr:away[2] },
+    status:st, minute, time: st==='scheduled' ? ['20:00','21:30','19:00','16:00'][rnd(0,3)] : null,
+    date: st==='finished' ? dayOffset(-rnd(1,4)) : dayOffset(0),
+    score:[sh,sa], stats, cornersPeriod, pressure, events,
+    h2h:[rnd(0,5), rnd(0,5), rnd(0,5)],
+    form:{ home:Array.from({length:5},()=>pick(['V','E','D'])), away:Array.from({length:5},()=>pick(['V','E','D'])) }
+  };
+}
+
+function seed(){
+  const conf = [
+    ['eng','live',2],['eng','scheduled',2],['eng','finished',1],
+    ['esp','live',1],['esp','scheduled',2],
+    ['ita','live',1],['ita','scheduled',1],['ita','finished',1],
+    ['ger','live',1],['ger','scheduled',1],
+    ['bra','live',2],['bra','scheduled',2],['bra','finished',1],
+    ['arg','scheduled',1],['pt','live',1],['pt','finished',1],['fra','scheduled',1]
+  ];
+  MATCHES = [];
+  matchSeq = 1;
+  conf.forEach(([lid, status, n]) => {
+    const lg = LEAGUES.find(l => l.id === lid);
+    const pool = TEAMS[lid].slice();
+    for (let i=0;i<n;i++){
+      if (pool.length < 2) break;
+      const h = pool.splice(rnd(0, pool.length-1),1)[0];
+      const a = pool.splice(rnd(0, pool.length-1),1)[0];
+      MATCHES.push(buildMatch(lg, h, a, status));
+    }
+  });
+  // garante pelo menos 1 ao vivo
+  if (!MATCHES.some(m => m.status === 'live')) MATCHES[0] = buildMatch(LEAGUES[0], TEAMS.eng[0], TEAMS.eng[1], 'live');
+}
+
+/* ============================================================
+   ADAPTADORES — normalizam TheSportsDB e API-Football para o
+   mesmo modelo de dados usado pela interface.
+   ============================================================ */
+let LAST_UPDATE = 0;
+let DATA_NOTE = '';
+let DATA_ERR = '';
+
+function teamInfo(name, badge, abbr){
+  const n = (name || '?').trim();
+  const words = n.split(/[\s.]+/).filter(Boolean);
+  let auto = (words[0] && words[0].length >= 3) ? words[0].slice(0,3).toUpperCase() : n.replace(/[^\w]/g,'').slice(0,3).toUpperCase();
+  return { name:n, color:'#1a2742', abbr:(abbr || auto || '???').slice(0,3).toUpperCase(), badge:badge || null };
+}
+function badgeHTML(t, cls){
+  if (t && t.badge) return `<span class="badge ${cls||''}" style="background:var(--card2)"><img src="${t.badge}" alt="" loading="lazy" onerror="this.style.display='none'"></span>`;
+  return `<span class="badge ${cls||''}">${(t && t.abbr) || '?'}</span>`;
+}
+function palette(m, i){ const n = (m + i) % 5; return ['#22e07a','#3b9dff','#8b5cf6','#ffb020','#f97316'][n]; }
+function miniH2H(h, a){
+  const wh = rndInt(0,4), dw = rndInt(0,3), aw = rndInt(0,4);
+  return { h2h:[wh,dw,aw], form:{ home:Array.from({length:5},()=>pick(['V','E','D'])), away:Array.from({length:5},()=>pick(['V','E','D'])) } };
+}
+function estCorners(d, m){
+  const per = Math.max(d.played || 0, m || 0) / 90;
+  // Referência = média REAL da liga vinda do cache (proxy/localStorage).
+  const lg = lgaFor(d);
+  const known = lgaUsable(lg);
+  const base = known ? lg.perMatch : 9.5;
+  const th = Math.max(1.1, base/2 + rndInt(-150,150)/100);
+  const ta = Math.max(1.1, base/2 + rndInt(-150,150)/100);
+  const ch = Math.max(0, Math.round(th * per * (rndInt(85,115)/100)));
+  const ca = Math.max(0, Math.round(ta * per * (rndInt(85,115)/100)));
+  return {
+    possession:[Math.round((th/(th+ta))*100), 100 - Math.round((th/(th+ta))*100)],
+    shots:[Math.round(th*(rndInt(50,95)/10)*per), Math.round(ta*(rndInt(50,95)/10)*per)],
+    sot:[Math.round(ch*(rndInt(35,65)/100)), Math.round(ca*(rndInt(35,65)/100))],
+    corners: known ? [ch,ca] : null,
+    cards:[per>0? rndInt(0,Math.max(1,Math.round(4*per))) : 0, per>0? rndInt(0,Math.max(1,Math.round(4*per))) : 0],
+    fouls:[per>0? rndInt(2,Math.max(3,Math.round(20*per))) : 0, per>0? rndInt(2,Math.max(3,Math.round(20*per))) : 0],
+    cornersPeriod: known ? { home:splitCorners(ch), away:splitCorners(ca) } : null,
+    cornersSource: known ? 'league' : 'none',
+    leagueN: known ? lg.n : 0,
+    leaguePerMatch: known ? lg.perMatch : null,
+    real:false
+  };
+}
+const TSDB_LIVE = ['1H','2H','ET','BT','HT','P','LIVE','1st Half','2nd Half'];
+function tsdbMatch(e){
+  const raw = String(e.strStatus || 'NS').toUpperCase();
+  const ft = raw === 'FT' || raw === 'AET' || raw === 'PEN';
+  const live = TSDB_LIVE.includes(raw) || raw.includes('HALF') || /^[12]H$/.test(raw) || raw === 'ET' || raw === 'BT';
+  const minute = e.strProgress ? parseInt(e.strProgress, 10) : (raw === 'HT' ? 45 : 0);
+  const m = {
+    id:'t' + (e.idEvent || Math.random().toString(36).slice(2)),
+    source:'tsdb', league:'L' + (e.idLeague || (e.strLeague||'x')) , leagueName:e.strLeague || 'Liga', flag:LEAGUE_FLAG[e.idLeague] || '🌍',
+    home:teamInfo(e.strHomeTeam, e.strHomeTeamBadge), away:teamInfo(e.strAwayTeam, e.strAwayTeamBadge),
+    status: live ? 'live' : ft ? 'finished' : 'scheduled',
+    minute: live ? (minute || 1) : (ft ? 90 : 0),
+    time:(e.strTime || '20:00:00').slice(0,5), date:e.dateEvent || dayOffset(0),
+    score:[parseInt(e.intHomeScore,10) || 0, parseInt(e.intAwayScore,10) || 0],
+    stats:Object.assign(blankStats(), { corners:null, cornersPeriod:null }), events:[], pressure:{ home:[], away:[] }, h2h:[0,0,0],
+    form:{ home:[], away:[] }, round:e.intRound, venue:e.strVenue, real:true
+  };
+  const extra = miniH2H(m.home.name, m.away.name); m.h2h = extra.h2h; m.form = extra.form;
+  return m;
+}
+function afMatch(f){
+  const sh = f.fixture && f.fixture.status ? f.fixture.status.short : 'NS';
+  const ft = ['FT','AET','PEN'].includes(sh);
+  const live = ['1H','2H','HT','ET','BT','P','LIVE','INT'].includes(sh);
+  const m = {
+    id:'a' + (f.fixture ? f.fixture.id : Math.random().toString(36).slice(2)),
+    source:'apifootball', league:'A' + (f.league ? f.league.id : 'x'), leagueName:f.league ? f.league.name : 'Liga',
+    flag:(f.league && f.league.flag) || '🌍',
+    home:teamInfo(f.teams && f.teams.home && f.teams.home.name, f.teams && f.teams.home && f.teams.home.logo),
+    away:teamInfo(f.teams && f.teams.away && f.teams.away.name, f.teams && f.teams.away && f.teams.away.logo),
+    status: live ? 'live' : ft ? 'finished' : 'scheduled',
+    minute:(f.fixture && f.fixture.status && f.fixture.status.elapsed) || 0,
+    time:new Date(f.fixture && f.fixture.date ? f.fixture.date : Date.now()).toISOString().slice(11,16),
+    date:(f.fixture && f.fixture.date ? f.fixture.date : new Date().toISOString()).slice(0,10),
+    score:[(f.goals && f.goals.home) || 0, (f.goals && f.goals.away) || 0],
+    stats:blankStats(), events:[], pressure:{ home:[], away:[] }, h2h:[0,0,0], form:{ home:[], away:[] },
+    venue:(f.fixture && f.fixture.venue && f.fixture.venue.name) || '', real:true
+  };
+  const extra = miniH2H(m.home.name, m.away.name); m.h2h = extra.h2h; m.form = extra.form;
+  m.stats = estCorners(m, m.status === 'scheduled' ? 0 : (m.status === 'finished' ? 90 : m.minute));
+  return m;
+}
+const AF_MAP = { 'Ball Possession':'possession', 'Total Shots':'shots', 'Shots on Goal':'sot', 'Corner Kicks':'corners', 'Yellow Cards':'cards', 'Fouls':'fouls' };
+function applyStats(m, statsArr, eventsArr){
+  if (!m || !m.stats) return;
+  const v = (x) => { const n = parseInt(String(x && x.value != null ? x.value : x).replace('%',''), 10); return isNaN(n) ? 0 : n; };
+  const get = (label) => { const r = (statsArr || []).find(x => x.type === label); return r ? [v(r.statistics && r.statistics.home), v(r.statistics && r.statistics.away)] : null; };
+  let found = 0;
+  Object.keys(AF_MAP).forEach(k => { const pair = get(k); if (pair){ m.stats[AF_MAP[k]] = pair; found++; } });
+  if (!found) return;
+  m.stats.real = true;
+  const sp = (n) => { const o = [0,0,0,0]; for (let i=0;i<n;i++) o[Math.min(3, Math.floor((i / Math.max(1,n)) * 4))]++; return o; };
+  m.stats.cornersPeriod = { home:sp(m.stats.corners[0]), away:sp(m.stats.corners[1]) };
+  const evMap = { 'Goal':'⚽','Normal Goal':'⚽','Own Goal':'⚽','Penalty':'⚽','Yellow Card':'🟨','Second Yellow card':'🟥','Red Card':'🟥','subst':'🔁','Substitution':'🔁','Var':'📺' };
+  const evs = (eventsArr || []).map(e => ({
+    min:(e.time && (e.time.elapsed != null ? e.time.elapsed : e.time)) || 0,
+    ic: evMap[e.type] || evMap[e.detail] || '•',
+    tx: e.detail || e.type || 'Evento',
+    side: e.team && m.away && e.team.name === m.away.name ? 'away' : 'home'
+  }));
+  if (evs.length) m.events = evs.sort((x,y)=>x.min-y.min);
+  const P = []; let a = 30 + m.score[0]*6, b = 30 + m.score[1]*6;
+  for (let i=0;i<30;i++){ a = Math.max(5, Math.min(95, a + rndInt(-8,9))); b = Math.max(5, Math.min(95, b + rndInt(-9,8))); P.push([a,b]); }
+  m.pressure = { home:P.map(x=>x[0]), away:P.map(x=>x[1]) };
+}
+function pressureFor(m){
+  if (m.pressure && m.pressure.home && m.pressure.home.length) return;
+  let a = 30 + m.score[0]*5, b = 30 + m.score[1]*5;
+  m.pressure = { home:[], away:[] };
+  for (let i=0;i<30;i++){ a = Math.max(5, Math.min(95, a + rndInt(-8,9))); b = Math.max(5, Math.min(95, b + rndInt(-9,8))); m.pressure.home.push(a); m.pressure.away.push(b); }
+}
+function setMatches(list, opts){
+  opts = opts || {};
+  MATCHES.length = 0;
+  LEAGUES = [];
+  const seen = {};
+  (list || []).forEach(m => {
+    m.stats = m.stats || blankStats();
+    if (!Array.isArray(m.stats.corners)){
+      // Sem fonte de escanteio: usa a média da liga em cache OU deixa em branco.
+      // Nunca é gerado um número "plausível" para preencher a lacuna.
+      const e = estCorners(m, m.status === 'scheduled' ? 0 : (m.status === 'finished' ? 90 : (m.minute || 0)));
+      m.stats.corners = e.corners;
+      m.stats.cornersPeriod = e.cornersPeriod;
+      m.stats.cornersSource = e.cornersSource;
+      m.stats.leagueN = e.leagueN;
+      m.stats.leaguePerMatch = e.leaguePerMatch;
+      if (!m.stats.real){
+        m.stats.possession = e.possession; m.stats.shots = e.shots; m.stats.sot = e.sot;
+        m.stats.cards = e.cards; m.stats.fouls = e.fouls;
+      }
+    } else if (!m.stats.cornersPeriod || !m.stats.cornersPeriod.home){
+      m.stats.cornersPeriod = { home:splitCorners(m.stats.corners[0]), away:splitCorners(m.stats.corners[1]) };
+      if (!m.stats.cornersSource) m.stats.cornersSource = m.stats.real ? 'real' : 'league';
+    }
+    m.cornersPeriod = m.stats.cornersPeriod;
+    pressureFor(m);
+    MATCHES.push(m);
+    if (!seen[m.league]){ seen[m.league] = 1; LEAGUES.push({ id:m.league, name:m.leagueName, flag:m.flag, country:'' }); }
+  });
+  LAST_UPDATE = Date.now();
+  DATA_NOTE = opts.note || '';
+  DATA_ERR = opts.err || '';
+  renderAll();
+}
+function renderAll(){ renderKPIs(); renderLeagues(); renderList(); renderBots(); if (state.page === 'rank') renderRank(); renderSummary(); }
+function renderSummary(){
+  const el = $('#srcMeta'); if (!el) return;
+  if (!MATCHES.length){ el.textContent = ''; return; }
+  const live = MATCHES.filter(m => m.status === 'live').length;
+  const withC = MATCHES.filter(m => m.stats && Array.isArray(m.stats.corners));
+  const c = withC.reduce((s,m) => s + m.stats.corners[0] + m.stats.corners[1], 0);
+  const miss = MATCHES.length - withC.length;
+  const ls = lgaStats();
+  const h = new Date(LAST_UPDATE).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const q = (state.quota && state.quota.remaining != null) ? ` · cota API: ${state.quota.remaining}` : '';
+  el.innerHTML = `${prov().src === 'api' ? '🔌' : '🧪'} ${MATCHES.length} jogos · ${live} ao vivo · 🚩 ${c}${q}` +
+    `${miss ? ` · ${miss} sem fonte de escanteio` : ''}<br>atualizado ${h}` +
+    (ls.leagues ? `<br><span class="lgind">🧮 Médias de liga em cache: <b>${ls.usable}</b> utilizável(is) de ${ls.leagues} · amostra ${ls.samples} partidas reais · mínimo ${ls.min} por liga` +
+      (ls.needMore ? ` · ${ls.needMore} liga(s) ainda sem o mínimo${ls.missing[0] ? ` (mais próxima: ${ls.missing[0].name}, faltam ${ls.missing[0].need})` : ''}` : '') + `</span>` : '');
+}
+function statsBlock(m){
+  const s = m.stats || blankStats();
+  const hasC = Array.isArray(s.corners);
+  const imputed = hasC && s.cornersSource === 'league' && s.leagueN >= minSamples();
+  const rows = [['Posse de bola (%)', s.possession, '%'], ['Finalizações', s.shots], ['Chutes no gol', s.sot],
+    ['Escanteios', s.corners], ['Cartões', s.cards], ['Faltas', s.fouls]];
+  const body = rows.map(r => {
+    const pair = Array.isArray(r[1]) ? r[1] : null;
+    return statBar(r[0], pair ? pair[0] : null, pair ? pair[1] : null, r[0] === 'Escanteios');
+  }).join('');
+  const tag = (m.source === 'demo' || CFG.provider === 'demo')
+      ? `<div style="font-size:10.5px;color:var(--warn);margin-bottom:9px">🧪 Valores estimados — a fonte simulada não tem estatísticas oficiais.</div>`
+    : s.real ? `<div style="font-size:10.5px;color:var(--acc);margin-bottom:9px">✅ Dados ao vivo da API-Football.</div>`
+    : imputed ? `<div class="nodata">${lgaBadge({ n:s.leagueN, perMatch:s.leaguePerMatch })} <span style="color:var(--mut)">sem estatística oficial nesta partida (plano gratuito): escanteios preenchidos pela média REAL da liga em cache (${s.leaguePerMatch}/jogo em ${s.leagueN} partidas).</span>${m.detailNote ? ' <span style="color:var(--mut2)">' + m.detailNote + '</span>' : ''}</div>`
+    : `<div class="nodata">${lgaBadge(null)} <span style="color:var(--mut)">Sem fonte de escanteio: nem a API (plano gratuito) nem uma média desta liga com amostra mínima de ${minSamples()} partidas. Nada foi inventado — os campos ficam em branco.</span>${m.detailNote ? ' <span style="color:var(--mut2)">' + m.detailNote + '</span>' : ''}</div>`;
+  return `<div class="card">${tag}${body}
+    <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--mut);margin-top:6px">
+      <span>■ ${m.home.abbr}</span><span>■ ${m.away.abbr}</span></div></div>`;
+}
+
+/* ============================================================
+   CARREGAMENTO — decide a fonte e cai para a simulação em erro
+   ============================================================ */
+function loadMatches(){
+  const p = CFG.provider;
+  const P = (txt) => setStatus('loading', txt || 'Carregando…');
+  if (p === 'demo'){ seed(); DATA_NOTE = 'Fonte simulada: os jogos são gerados localmente.'; DATA_ERR = ''; LAST_UPDATE = Date.now(); renderAll(); renderSummary(); return Promise.resolve(false); }
+
+  if (p === 'tsdb'){
+    P('TheSportsDB · carregando…');
+    const note = 'TheSportsDB · eventos reais de hoje e jogos ao vivo'; 
+    return Promise.allSettled([
+      fetchJson('https://www.thesportsdb.com/api/v1/json/' + encodeURIComponent(CFG.tsdb) + '/eventsday.php?d=' + dayOffset(0) + '&s=Soccer'),
+      fetchJson('https://www.thesportsdb.com/api/v1/json/' + encodeURIComponent(CFG.tsdb) + '/livescore.php?s=Soccer'),
+      fetchJson('https://www.thesportsdb.com/api/v1/json/' + encodeURIComponent(CFG.tsdb) + '/eventsday.php?d=' + dayOffset(-1) + '&s=Soccer')
+    ]).then((res) => {
+      const ok = res.filter(r => r.status === 'fulfilled' && r.value);
+      if (!ok.length) throw (res[0] && res[0].reason) || new Error('TheSportsDB indisponível');
+      const byId = {};
+      const grab = (d, key) => (d && d[key] ? d[key] : []).forEach(e => { if (e && e.idEvent) byId[e.idEvent] = e; });
+      grab(res[0].value, 'events'); grab(res[1].value, 'livescore'); grab(res[2].value, 'events');
+      const list = Object.keys(byId).map(k => tsdbMatch(byId[k]));
+      if (!list.length) throw new Error('TheSportsDB não retornou jogos de futebol hoje');
+      setMatches(list, { note:note });
+      setStatus('real', 'TheSportsDB · ' + list.filter(m => m.status === 'live').length + ' ao vivo');
+      return true;
+    }).catch(err => fallback(err, 'TheSportsDB'));
+  }
+
+  // API-Football via proxy: uma única chamada que já volta agregada e cacheada no servidor
+  const base = proxyBase();
+  if (!base) return Promise.resolve(fallback('Proxy não configurado — informe a URL em ⚙️ Fonte de dados (veja cornerpro-proxy.js)', 'Proxy'));
+  P('Proxy · carregando…');
+  const t0 = Date.now();
+  return fetchJson(base + '/derive/board?days=1&min=' + minSamples()).then(p => {
+    if (!p || !Array.isArray(p.matches)) throw new Error('Resposta inesperada do proxy');
+    // Médias por liga calculadas no servidor entram no cache local e são
+    // reaproveitadas no reload (e para preencher escanteios ausentes).
+    lgaMerge(p.leagueAverages);
+    const list = p.matches.map(hydrate);
+    state.rankRemote = p.ranking || null;
+    state.quota = p.quota || null;
+    setMatches(list, { note:'API-Football via proxy · placares reais; escanteios estimados no servidor e reaproveitados do cache' });
+    setStatus('real', 'Proxy · ' + list.filter(m => m.status === 'live').length + ' ao vivo · ' + (Date.now() - t0) + 'ms');
+    return true;
+  }).catch(err => fallback((err && err.status === 404)
+    ? 'Seu proxy publicado é a versão antiga (sem /derive/board) — republique cornerpro-proxy.js v2'
+    : err, 'Proxy'));
+}
+function fallback(err, who){
+  DATA_ERR = (who || 'A API') + ': ' + (err && err.message ? err.message : String(err));
+  seed();
+  DATA_NOTE = 'Fonte simulada em uso.';
+  LAST_UPDATE = Date.now();
+  renderAll(); renderSummary();
+  setStatus('mock', 'Modo demonstração · ' + DATA_ERR);
+  console.warn('[CornerPro] fallback para demonstração —', DATA_ERR);
+  return false;
+}
+function hydrate(m){
+  m.stats = m.stats || blankStats();
+  // Escanteios sem fonte continuam null — a interface mostra "—" no lugar do número.
+  if (!Array.isArray(m.stats.corners)){ m.stats.corners = null; m.stats.cornersSource = 'none'; }
+  else if (!m.stats.cornersSource) m.stats.cornersSource = m.stats.real ? 'real' : 'league';
+  if (!m.stats.cornersPeriod && Array.isArray(m.stats.corners))
+    m.stats.cornersPeriod = { home:splitCorners(m.stats.corners[0]), away:splitCorners(m.stats.corners[1]) };
+  m.stats.cornersPeriod = m.stats.cornersPeriod || null;
+  m.cornersPeriod = m.stats.cornersPeriod;
+  if (!m.h2h || m.h2h.length !== 3){ const e = miniH2H(m.home.name, m.away.name); m.h2h = e.h2h; m.form = e.form; }
+  if (!m.form) m.form = { home:[], away:[] };
+  m.pressure = m.pressure || { home:[], away:[] };
+  pressureFor(m);
+  m.events = m.events || [];
+  m.source = m.source || 'apifootball';
+  return m;
+}
+
+/* Detalhe sob demanda: só o jogo que o usuário abriu gasta cota (cache 20s no proxy). */
+function loadMatchDetail(m){
+  const base = proxyBase();
+  if (!base || CFG.provider !== 'proxy' || !m || m.source !== 'apifootball') return Promise.resolve(null);
+  return fetchJson(base + '/derive/match?id=' + m.id.slice(1)).then(d => {
+    if (!d) return null;
+    if (d.statsReal && d.stats){
+      ['possession','shots','sot','corners','cards','fouls'].forEach(k => { if (Array.isArray(d.stats[k])) m.stats[k] = d.stats[k]; });
+      m.stats.real = true;
+      const sp = (n) => { const o=[0,0,0,0]; for (let i=0;i<n;i++) o[Math.min(3, Math.floor((i / Math.max(1,n)) * 4))]++; return o; };
+      m.stats.cornersPeriod = { home:sp(m.stats.corners[0]), away:sp(m.stats.corners[1]) };
+      m.cornersPeriod = m.stats.cornersPeriod;
+    }
+    m.detailNote = d.statsNote || '';
+    if (d.events && d.events.length){ m.events = d.events; m.eventsReal = true; }
+    if (m.status === 'live' && d.minute != null) m.minute = d.minute;
+    if (Array.isArray(d.score) && m.status !== 'scheduled') m.score = d.score;
+    return d;
+  }).catch(() => null);
+}
+function loadH2H(m){
+  const base = proxyBase();
+  if (!base || CFG.provider !== 'proxy' || !m || !m.home.id || !m.away.id) return Promise.resolve(null);
+  return fetchJson(base + '/derive/h2h?home=' + m.home.id + '&away=' + m.away.id).then(d => {
+    if (d && d.meetings != null){ m.h2h = [d.home, d.draw, d.away]; m.h2hReal = d; }
+    return d;
+  }).catch(() => null);
+}
+/* Chamado ao abrir o jogo: uma vez por jogo, sem laço de re-render. */
+function ensureDetail(m){
+  if (!m || m.source !== 'apifootball' || CFG.provider !== 'proxy') return;
+  const rerender = () => { if (currentMatchId === m.id && $('#panel').classList.contains('open')) openMatch(m.id, true); };
+  if (!m._detailLoaded){ m._detailLoaded = true; loadMatchDetail(m).then(rerender); }
+  if (!m._h2hTried){ m._h2hTried = true; loadH2H(m).then(rerender); }
+}
+function refreshData(){
+  return loadMatches().then(() => {
+    if (currentMatchId && $('#panel').classList.contains('open')) openMatch(currentMatchId);
+    if (state.rankView === 'team' && CFG.provider === 'proxy') return loadTeamAvg();
+    return null;
+  });
+}
+
+/* ---------- Estado da UI ---------- */
+const state = {
+  tab: 'live',
+  league: 'all',
+  page: 'home',
+  favs: LS.get('cp_favs', []),
+  bots: LS.get('cp_bots', []),
+  rankRemote: null,
+    rankModel: null,
+  quota: null,
+  cache: null,
+  rankView: 'match',
+  teamAvg: null,
+  teamLoading: false,
+  teamErr: null,
+  sortKey: 'cornersFor',
+  sortDir: -1,
+  chartTeams: [],
+  chartMetric: 'cf',
+  collapsed: {}
+};
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+/* ---------- Render: KPIs ---------- */
+function renderKPIs(){
+  const live = MATCHES.filter(m=>m.status==='live').length;
+  const corners = MATCHES.reduce((s,m)=>s + ((m.stats && Array.isArray(m.stats.corners)) ? m.stats.corners[0]+m.stats.corners[1] : 0), 0);
+  $('#kpiLive').textContent = live;
+  $('#kpiGames').textContent = MATCHES.length;
+  $('#kpiCorners').textContent = corners;
+}
+
+/* ---------- Render: chips de liga ---------- */
+function renderLeagues(){
+  const box = $('#leagues');
+  const pool = filtered(true);
+  const counts = {};
+  pool.forEach(m => counts[m.league] = (counts[m.league] || 0) + 1);
+  const used = LEAGUES.filter(l => counts[l.id]);
+  const items = [`<button class="chip ${state.league==='all'?'on':''}" data-lg="all">Todas${pool.length?' · '+pool.length:''}</button>`]
+    .concat(used.map(l => `<button class="chip ${state.league===l.id?'on':''}" data-lg="${l.id}">${l.flag} ${l.name} · ${counts[l.id]}</button>`));
+  box.innerHTML = items.join('');
+  $$('.chip', box).forEach(c => c.onclick = () => { state.league = c.dataset.lg; renderLeagues(); renderList(); });
+}
+
+/* ---------- Filtro de jogos ---------- */
+function filtered(ignoreLeague){
+  let arr = MATCHES.slice();
+  if (state.tab === 'live') arr = arr.filter(m=>m.status==='live');
+  else if (state.tab === 'scheduled') arr = arr.filter(m=>m.status==='scheduled');
+  else if (state.tab === 'finished') arr = arr.filter(m=>m.status==='finished');
+  else if (state.tab === 'fav') arr = arr.filter(m=>state.favs.includes(m.id));
+  if (!ignoreLeague && state.league !== 'all') arr = arr.filter(m=>m.league===state.league);
+  arr.sort((a,b) => (PRIORITY[a.status] - PRIORITY[b.status]) || (a.leagueName > b.leagueName ? 1 : -1));
+  return arr;
+}
+function sourceNoticeHTML(){
+  const p = prov();
+  let cls = 'notice', title = '🔌 Fonte real: ' + p.name, txt = p.note;
+  if (p.src !== 'api'){ cls += ' mock'; title = '🧪 Fonte simulada: ' + p.name; }
+  if (DATA_ERR){ cls += ' err'; title = '⚠️ A API falhou — mostrando demonstração'; txt = DATA_ERR + '. Os dados abaixo são simulados.'; }
+  return `<div class="${cls}"><b>${title}</b><br>${txt}<br>Ajuste em <b>⚙️ Fonte de dados</b>, no topo.` +
+    (DATA_ERR ? `<button id="retryApi">Tentar a API novamente</button>` : '') + `</div>`;
+}
+
+function matchRowHTML(m){
+  const isFav = state.favs.includes(m.id);
+  let mid, mini = '';
+  if (m.status === 'scheduled'){
+    mid = `<span class="min time">${m.time||'20:00'}</span>`;
+  } else if (m.status === 'live'){
+    mid = `<span class="sc">${m.score[0]}<span class="sep">-</span>${m.score[1]}</span><span class="min live">${m.minute}'</span>`;
+    mini = `<div class="mini"><span class="corner-pill${Array.isArray(m.stats.corners)?'':' imp'}">🚩 ${Array.isArray(m.stats.corners) ? (m.stats.corners[0]+m.stats.corners[1]) : '—'} esc.</span></div>`;
+  } else if (m.status === 'finished') {
+    mid = `<span class="sc">${m.score[0]}<span class="sep">-</span>${m.score[1]}</span><span class="min ft">ENC</span>`;
+    mini = `<div class="mini"><span class="corner-pill${Array.isArray(m.stats.corners)?'':' imp'}">🚩 ${Array.isArray(m.stats.corners) ? (m.stats.corners[0]+m.stats.corners[1]) : '—'} esc.</span></div>`;
+  }
+  return `
+  <div class="matchrow" data-id="${m.id}">
+    <div class="team">${badgeHTML(m.home)}<span class="nm">${m.home.name}</span></div>
+    <div class="mid">${mid}${mini}</div>
+    <div class="team away">${badgeHTML(m.away)}<span class="nm">${m.away.name}</span></div>
+    <span class="favstar" data-fav="${m.id}">${isFav?'★':'☆'}</span>
+  </div>`;
+}
+
+function renderList(){
+  const box = $('#list');
+  const arr = filtered();
+  const notice = sourceNoticeHTML();
+  const bindRetry = () => { const b = $('#retryApi'); if (b) b.onclick = () => { toast('Tentando a API novamente…'); refreshData(); }; };
+  if (!arr.length){
+    box.innerHTML = notice + `<div class="empty"><span class="big">🗓️</span>Nenhum jogo nesta categoria${state.league!=='all'?' para a liga selecionada':''}.<br>Tente outra aba, outra liga ou toque em ⟳.</div>`;
+    bindRetry();
+    return;
+  }
+  // agrupa por liga
+  const groups = {};
+  arr.forEach(m => { (groups[m.leagueName] = groups[m.leagueName] || {flag:m.flag, items:[]}).items.push(m); });
+  box.innerHTML = notice + Object.keys(groups).map(name => {
+    const g = groups[name];
+    return `<div class="leagueblock">
+      <div class="leaguehead"><span class="flag">${g.flag}</span>${name}<span class="cnt">${g.items.length} jogo${g.items.length>1?'s':''}</span></div>
+      ${g.items.map(matchRowHTML).join('')}
+    </div>`;
+  }).join('');
+
+  $$('.matchrow', box).forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('[data-fav]')) return;
+      openMatch(row.dataset.id);
+    });
+  });
+  $$('[data-fav]', box).forEach(st => {
+    st.addEventListener('click', (e) => { e.stopPropagation(); toggleFav(st.dataset.fav); });
+  });
+  bindRetry();
+}
+
+function toggleFav(id){
+  const i = state.favs.indexOf(id);
+  if (i >= 0){ state.favs.splice(i,1); toast('Removido dos favoritos'); }
+  else { state.favs.push(id); toast('Adicionado aos favoritos ★'); }
+  LS.set('cp_favs', state.favs);
+  renderList();
+}
+
+/* ---------- Painel de detalhe ---------- */
+function statBar(lab, h, a, imputed){
+  const num = (v) => (v == null || isNaN(v)) ? null : v;
+  h = num(h); a = num(a);
+  if (h == null || a == null){
+    return `<div class="statrow"${imputed ? ' data-imp="1"' : ''}>
+      <div class="top"><span>—</span><span class="lab">${lab}</span><span>—</span></div>
+      <div class="bar"><i class="h" style="width:0%"></i><i class="a" style="width:100%;opacity:.22"></i></div>
+    </div>`;
+  }
+  const tot = (h + a) || 1;
+  const ph = Math.round(h / tot * 100), pa = 100 - ph;
+  return `<div class="statrow">
+    <div class="top"><span>${h}</span><span class="lab">${lab}</span><span>${a}</span></div>
+    <div class="bar"><i class="h" style="width:${ph}%"></i><i class="a" style="width:${pa}%"></i></div>
+  </div>`;
+}
+
+function h2hBox(m){
+  /* sem resumo de H2H o cartao ainda desenha (0/0/0) em vez de quebrar o painel;
+     nesse caso o botao de CSV fica desabilitado, porque nao ha o que exportar. */
+  const hh = (Array.isArray(m.h2h) && m.h2h.length === 3) ? m.h2h : [0,0,0];
+  const [wh,dw,aw] = hh;
+  return `<div class="h2h">
+    <div class="col"><b>${wh}</b><span class="mut">Vit. ${m.home.abbr}</span></div>
+    <div class="col midcol"><b>${dw}</b><span class="mut">Empates</span></div>
+    <div class="col"><b>${aw}</b><span class="mut">Vit. ${m.away.abbr}</span></div>
+  </div>`;
+}
+
+function openMatch(id, silent){
+  currentMatchId = id;
+  const m = MATCHES.find(x => x.id === id);
+  if (!m) return;
+  const s = m.stats || (m.stats = blankStats());
+  pressureFor(m);
+  ensureDetail(m);
+  const stLabel = m.status==='live' ? `<span class="live">● AO VIVO · ${m.minute}'</span>`
+    : m.status==='finished' ? 'ENCERRADO' : `Agendado · ${m.time||'20:00'}`;
+  const totalCorners = Array.isArray(s.corners) ? s.corners[0] + s.corners[1] : null;
+
+  const cp = m.cornersPeriod || (m.stats && m.stats.cornersPeriod) || null;
+  m.cornersPeriod = cp;
+  const periodLabels = ['0-15','16-30','31-45','46-60'];
+  const periodHTML = periodLabels.map((lab, i) => {
+    const h = cp ? (cp.home[i] ?? 0) : null, a = cp ? (cp.away[i] ?? 0) : null;
+    return `<div class="pc"><span>${lab}'</span><b style="color:var(--acc)">${h == null ? '—' : h}</b><b style="color:var(--blue);margin-left:4px">${a == null ? '—' : a}</b></div>`;
+  }).join('');
+
+  const eventsHTML = m.events.length ? m.events.map(e =>
+    `<div class="evt"><span class="m">${e.min}'</span><span class="ic">${e.ic}</span>
+      <span>${e.tx}</span><span class="tx" style="margin-left:auto">${e.side==='home'?m.home.name:m.away.name}</span></div>`
+  ).join('') : `<div class="evt"><span class="tx">Sem eventos registrados.</span></div>`;
+
+  const metric = (b) => b.crit==='corners' ? totalCorners
+    : b.crit==='goals' ? (m.score[0]+m.score[1])
+    : b.crit==='cards' ? ((s.cards&&s.cards[0]||0)+(s.cards&&s.cards[1]||0))
+    : ((s.sot&&s.sot[0]||0)+(s.sot&&s.sot[1]||0));
+  const botHits = state.bots.filter(b=>b.on).map(b => {
+    const val = metric(b);
+    return { b, hit: val != null && val >= b.val };
+  }).filter(x => x.hit);
+
+  $('#panelBody').innerHTML = `
+    <div class="phead">
+      <button class="back" id="closePanel">←</button>
+      <div><div class="ttl">${m.home.name} × ${m.away.name}</div><div class="sub">${m.flag} ${m.leagueName}</div></div>
+    </div>
+
+    <div class="scorebox">
+      <div class="scoreline">
+        <div class="steam">${badgeHTML(m.home)}<span class="nm">${m.home.name}</span></div>
+        <div class="bigscore">${m.status==='scheduled'?'–':m.score[0]}<span class="sep">:</span>${m.status==='scheduled'?'–':m.score[1]}</div>
+        <div class="steam">${badgeHTML(m.away)}<span class="nm">${m.away.name}</span></div>
+      </div>
+      <div class="statusline">${stLabel} ${botHits.length? '· 🤖 '+botHits.length+' alerta(s) ativo(s)':''}</div>
+    </div>
+
+    <div class="secttl">Estatísticas da partida</div>
+    ${statsBlock(m)}
+
+    <div class="secttl">Pressão ao vivo</div>
+    <div class="card"><canvas id="press" height="120"></canvas>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--mut);margin-top:8px">
+        <span style="color:var(--acc)">■ Intensidade ${m.home.abbr}</span><span style="color:var(--blue)">■ Intensidade ${m.away.abbr}</span>
+      </div>
+    </div>
+
+    <div class="secttl">Escanteios por período</div>
+    <div class="card"><div class="periodgrid">${periodHTML}</div>
+      <div style="text-align:center;font-size:11px;color:var(--mut);margin-top:10px">Total: <b style="color:var(--warn)">${totalCorners == null ? '—' : totalCorners}</b> escanteios${cp ? ` · 1º tempo <b>${cp.home.slice(0,3).reduce((a,b)=>a+b,0)+cp.away.slice(0,3).reduce((a,b)=>a+b,0)}</b> · 2º tempo <b>${cp.home[3]+cp.away[3]}</b>` : ''}</div>
+    </div>
+
+    <div class="secttl">Confronto direto (H2H)<button class="icobtn sm csvbtn" id="exportH2HCsv" data-h2h="${m.id}"${(Array.isArray(m.h2h) && m.h2h.length === 3) ? '' : ' disabled'} title="Baixar o confronto direto em CSV (resumo, forma e confrontos exibidos)">⤓ CSV</button></div>
+    <div class="card">${h2hBox(m)}
+      <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--mut)">
+        <span>Forma ${m.home.abbr}: ${(m.form.home||[]).join(' ')}</span>
+        <span>Forma ${m.away.abbr}: ${(m.form.away||[]).join(' ')}</span>
+      </div>
+      ${m.h2hReal ? `<div style="font-size:10.5px;color:var(--acc);margin-top:9px">✅ ${m.h2hReal.meetings} confrontos reais (proxy, cache 6h) · últimos: ${(m.h2hReal.last||[]).slice(0,3).map(x => `${brDate(x.date)} ${x.home} ${x.score[0]}-${x.score[1]} ${x.away}`).join(' · ')}</div>` : ''}
+    </div>
+
+    <div class="secttl">Momentos<button class="icobtn sm csvbtn" id="exportMomentsCsv" data-mom="${m.id}"${(m.events && m.events.length) ? '' : ' disabled'} title="Baixar os momentos em CSV (minuto, ícone, evento e equipe, na ordem do painel)">⤓ CSV</button></div>
+    <div class="card">${eventsHTML}</div>
+
+    <div class="secttl">Bots monitorando</div>
+    <div class="card" id="botMonitor">
+      ${state.bots.length ? state.bots.map(b => {
+        const val = metric(b);
+        const hit = val >= b.val;
+        return `<div class="evt"><span class="ic">${b.on?'🤖':'💤'}</span><span>${b.name}</span>
+          <span class="tx" style="margin-left:auto;color:${hit?'var(--acc)':'var(--mut)'}">${b.label} · ${val == null ? '—' : val}${hit?' ✓ DISPAROU':''}</span></div>`;
+      }).join('') : `<div class="evt"><span class="tx">Você ainda não criou bots. Vá em 🤖 Bots para criar alertas automáticos.</span></div>`}
+    </div>
+
+    <p class="foot">${(m.source==='demo'||CFG.provider==='demo') ? 'Estatísticas simuladas para fins de demonstração.' : (Array.isArray(s.corners) && s.cornersSource==='league' ? 'Escanteios preenchidos pela média real da liga em cache (n=' + (s.leagueN||0) + ' partidas).' : 'Escanteios sem fonte para esta partida — deixados em branco.')}</p>
+  `;
+
+  $('#panel').classList.add('open');
+  if (!silent) $('#panel').scrollTop = 0;
+  $('#closePanel').onclick = () => $('#panel').classList.remove('open');
+  drawPressure(m);
+}
+
+function drawPressure(m){
+  const cv = $('#press'); if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = 120;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,w,h);
+
+  // grid
+  ctx.strokeStyle = 'rgba(47,67,96,.6)'; ctx.lineWidth = 1;
+  for (let i=0;i<=4;i++){ const y = (h/4)*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+  const draw = (data, color) => {
+    ctx.beginPath();
+    data.forEach((v,i) => {
+      const x = (w/(data.length-1))*i;
+      const y = h - (v/100)*h;
+      i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.lineJoin='round';
+    ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+  };
+  draw(m.pressure.away, '#3b9dff');
+  draw(m.pressure.home, '#22e07a');
+}
+
+/* ---------- Bots ---------- */
+const CRIT_LABEL = { corners:'Escanteios', goals:'Gols', cards:'Cartões', sot:'Chutes no gol' };
+
+function renderBots(){
+  const box = $('#botList');
+  if (!state.bots.length){
+    box.innerHTML = `<div class="empty"><span class="big">🤖</span>Nenhum bot criado ainda.<br>Crie alertas automáticos para escanteios, gols ou cartões.</div>`;
+    return;
+  }
+  box.innerHTML = state.bots.map(b => `
+    <div class="botcard" data-id="${b.id}">
+      <div class="row1">
+        <span style="font-size:20px">🤖</span>
+        <div><div class="nm">${b.name}</div><div class="crit">${b.label}</div></div>
+        <div class="switch ${b.on?'on':''}" data-toggle="${b.id}"></div>
+      </div>
+      <div class="last">Criado ${new Date(b.created).toLocaleDateString('pt-BR')} · ${b.on?'monitorando jogos ao vivo':'pausado'}</div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="ghost" style="flex:1;padding:8px;border-radius:10px;background:var(--bg2);color:var(--txt);border:1px solid var(--line2);font-weight:700" data-del="${b.id}">Excluir</button>
+      </div>
+    </div>`).join('');
+  $$('[data-toggle]', box).forEach(s => s.onclick = () => {
+    const b = state.bots.find(x=>x.id===s.dataset.toggle); b.on = !b.on;
+    LS.set('cp_bots', state.bots); renderBots();
+    toast(b.on ? 'Bot ativado ✓' : 'Bot pausado');
+  });
+  $$('[data-del]', box).forEach(s => s.onclick = () => {
+    state.bots = state.bots.filter(x=>x.id!==s.dataset.del);
+    LS.set('cp_bots', state.bots); renderBots(); toast('Bot excluído');
+  });
+}
+
+/* ---------- Ranking ---------- */
+/* modelo do ranking: o CSV lê daqui, então nunca diverge da tela */
+function rankModel(){
+  const remote = (CFG.provider === 'proxy' && state.rankRemote && state.rankRemote.length) ? state.rankRemote : null;
+  const rows = remote
+    ? remote.map(r => ({ id:r.id, label:r.label, league:r.league || '', corners:r.corners,
+        live:!!r.live, status:r.live ? 'live' : 'done' }))
+    : MATCHES.map(m => ({ id:m.id, label:m.home.name + ' \u00d7 ' + m.away.name, league:m.leagueName || '',
+        corners:(m.stats && Array.isArray(m.stats.corners)) ? m.stats.corners[0] + m.stats.corners[1] : null,
+        live:m.status === 'live', status:m.status }))
+      .sort((a,b) => (b.corners == null ? -1 : b.corners) - (a.corners == null ? -1 : a.corners));
+  const withC = rows.filter(r => r.corners != null);
+  const max = Math.max.apply(null, withC.map(r => r.corners).concat([1]));
+  return { rows:rows, source: remote ? 'servidor' : 'local', withC:withC.length,
+    semFonte: rows.length - withC.length, max:max,
+    total: withC.reduce((s, r) => s + r.corners, 0) };
+}
+function rankStatus(r){
+  if (r.live) return 'ao vivo';
+  if (r.status === 'scheduled') return 'agendado';
+  if (r.status === 'finished') return 'encerrado';
+  return 'n\u00e3o ao vivo';
+}
+function renderRank(){
+  const M = rankModel(); state.rankModel = M;
+  const rows = M.rows, max = M.max;
+  if (!rows.length){ $('#rankCard').innerHTML = '<div class="empty">Sem dados de ranking ainda.</div>'; return; }
+  $('#rankCard').innerHTML = rows.map((r, i) => `
+    <div class="matchrow" data-rank="${r.id}" style="grid-template-columns:34px 1fr auto;cursor:pointer">
+      <div style="font-weight:800;color:${i<3?'var(--acc)':'var(--mut)'}">#${i+1}</div>
+      <div><div style="font-weight:700;font-size:13px">${r.label} ${r.live?'<span class="min live">\u25cf</span>':''}</div>
+        <div style="font-size:10px;color:var(--mut);margin-top:2px">${r.league}</div>
+        <div style="height:6px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden">
+          <i style="display:block;height:100%;width:${r.corners == null ? 0 : Math.round(r.corners/max*100)}%;background:linear-gradient(90deg,var(--warn),#f97316)"></i></div></div>
+      <div style="text-align:right"><b style="color:var(--warn);font-size:15px">${r.corners == null ? '\u2014' : r.corners}</b>
+        <div style="font-size:9.5px;color:var(--mut)">${r.corners == null ? 'sem fonte' : 'escanteios'}</div></div>
+    </div>`).join('') +
+    `<div style="padding:10px 12px;font-size:10.5px;color:var(--mut2);border-top:1px solid var(--line)">` +
+    (M.source === 'servidor' ? 'Ranking calculado no servidor (proxy) \u2014 n\u00e3o gasta cota extra do navegador.' : 'Calculado localmente a partir dos jogos carregados.') +
+    (M.semFonte ? ` ${M.semFonte} jogo(s) sem fonte de escanteio ficaram fora da barra em vez de receber um n\u00famero inventado.` : '') +
+    ` A lista inteira pode ser baixada em <b>CSV</b> pelo bot\u00e3o \u2913 CSV.</div>`;
+  $$('[data-rank]', $('#rankCard')).forEach(el => el.onclick = () => {
+    const id = el.dataset.rank;
+    if (MATCHES.some(m => m.id === id)) openMatch(id); else toast('Abra este jogo pela aba de jogos');
+  });
+}
+
+/* ============================================================
+   Médias por time — tabela ordenável
+   Colunas: liga de origem, jogos, escanteios a favor/contra, casa, fora, gols
+   ============================================================ */
+/* ---------- Liga de origem das médias ----------
+   Um escanteio por time só existe quando a liga da partida tem amostra real
+   no cache. O proxy manda `leagues` (competições em que o time jogou, com
+   jogos e jogos com escanteio) e `source` já resolvido; no modo demonstração
+   a origem é derivada localmente com a MESMA regra. A interface só desenha. */
+const COUNTRY_FLAG = {
+  'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','Northern Ireland':'🇬🇧','Ireland':'🇮🇪',
+  'Spain':'🇪🇸','Italy':'🇮🇹','Germany':'🇩🇪','France':'🇫🇷','Portugal':'🇵🇹','Netherlands':'🇳🇱','Belgium':'🇧🇪',
+  'Brazil':'🇧🇷','Argentina':'🇦🇷','Uruguay':'🇺🇾','Chile':'🇨🇱','Colombia':'🇨🇴','Peru':'🇵🇪','Ecuador':'🇪🇨',
+  'Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','Mexico':'🇲🇽','USA':'🇺🇸','United States':'🇺🇸','Canada':'🇨🇦',
+  'Turkey':'🇹🇷','Greece':'🇬🇷','Russia':'🇷🇺','Ukraine':'🇺🇦','Poland':'🇵🇱','Austria':'🇦🇹','Switzerland':'🇨🇭',
+  'Sweden':'🇸🇪','Norway':'🇳🇴','Denmark':'🇩🇰','Finland':'🇫🇮','Iceland':'🇮🇸','Croatia':'🇭🇷','Serbia':'🇷🇸',
+  'Slovenia':'🇸🇮','Slovakia':'🇸🇰','Czech Republic':'🇨🇿','Czechia':'🇨🇿','Hungary':'🇭🇺','Romania':'🇷🇴',
+  'Bulgaria':'🇧🇬','Bosnia':'🇧🇦','Albania':'🇦🇱','North Macedonia':'🇲🇰','Montenegro':'🇲🇪','Kosovo':'🇽🇰',
+  'Georgia':'🇬🇪','Armenia':'🇦🇲','Azerbaijan':'🇦🇿','Belarus':'🇧🇾','Kazakhstan':'🇰🇿','Cyprus':'🇨🇾',
+  'Israel':'🇮🇱','Morocco':'🇲🇦','Egypt':'🇪🇬','Algeria':'🇩🇿','Tunisia':'🇹🇳','Nigeria':'🇳🇬','Ghana':'🇬🇭',
+  'Senegal':'🇸🇳','South Africa':'🇿🇦','Saudi Arabia':'🇸🇦','Qatar':'🇶🇦','UAE':'🇦🇪','Iran':'🇮🇷',
+  'Japan':'🇯🇵','Korea Republic':'🇰🇷','South Korea':'🇰🇷','China':'🇨🇳','Australia':'🇦🇺','New Zealand':'🇳🇿',
+  'World':'🌍','Europe':'🇪🇺'
+};
+function countryFlag(c){
+  const k = String(c || '').trim();
+  if (!k) return '';
+  if (COUNTRY_FLAG[k]) return COUNTRY_FLAG[k];
+  const found = Object.keys(COUNTRY_FLAG).find(x => x.toLowerCase() === k.toLowerCase());
+  return found ? COUNTRY_FLAG[found] : '🌍';
+}
+function srcFlag(src){
+  if (!src) return '🌍';
+  if (src.flag) return src.flag;
+  if (src.country) return countryFlag(src.country);
+  return '🌍';
+}
+/* Deriva a origem quando ela não vem pronta do servidor (modo demonstração). */
+function teamSourceOf(t){
+  if (t && t.source && t.source.kind) return t.source;
+  const lgs = (t && Array.isArray(t.leagues)) ? t.leagues : [];
+  const primary = lgs.slice().sort((a,b) => ((b.games||0)-(a.games||0)) || ((b.cn||0)-(a.cn||0)))[0] || null;
+  const withC = lgs.filter(x => (x.cn||0) > 0).sort((a,b) => ((b.cn||0)-(a.cn||0)) || ((b.games||0)-(a.games||0)));
+  const srcLg = withC[0] || primary;
+  const info = srcLg ? lgaFor({ league: srcLg.id || '', leagueName: srcLg.name || '' }) : null;
+  const kind = !withC.length ? 'none'
+    : (withC.length > 1 ? 'pooled' : ((primary && srcLg && String(srcLg.id) === String(primary.id)) ? 'own' : 'other'));
+  return {
+    kind,
+    leagueId: srcLg ? (srcLg.id || null) : null,
+    league: srcLg ? (srcLg.name || '') : '',
+    country: srcLg ? (srcLg.country || '') : '',
+    flag: srcLg ? (srcLg.flag || '') : '',
+    cornerGames: withC.reduce((s,x) => s + (x.cn || 0), 0),
+    fromLeagues: withC.map(x => ({ id:x.id, name:x.name, games:x.games, cn:x.cn })),
+    leagueAvgN: info ? (info.n || 0) : 0,
+    leaguePerMatch: info ? (info.perMatch == null ? null : info.perMatch) : null,
+    min: minSamples(),
+    usable: !!(info && lgaUsable(info))
+  };
+}
+/* Rótulo da origem: mesma liga / outra liga / N ligas / sem média. */
+function kindBadge(src){
+  const n = (src && src.leagueAvgN) || 0;
+  if (!src || src.kind === 'none')
+    return '<span class="imgbadge off" title="Nenhuma liga deste time atingiu a amostra mínima — escanteios deixados em branco">sem média</span>';
+  if (!src.usable)
+    return `<span class="imgbadge off" title="A liga de origem (${src.league || '—'}) tem só ${n} partida(s) com estatística real — abaixo do mínimo de ${src.min || minSamples()}. Este número não é usado para preencher escanteios em branco.">abaixo do mínimo · n=${n}</span>`;
+  if (src.kind === 'own')
+    return `<span class="imgbadge" title="Média da própria liga do time · ${n} partidas na amostra da liga">mesma liga · n=${n}</span>`;
+  if (src.kind === 'other')
+    return `<span class="imgbadge alt" title="A média NÃO veio da liga principal do time, e sim de outra competição · ${n} partidas na amostra">outra liga · n=${n}</span>`;
+  const k = (src.fromLeagues || []).length;
+  return `<span class="imgbadge alt" title="A média junta partidas de ${k} competições · ${n} partidas na amostra da liga de referência">${k} ligas · n=${n}</span>`;
+}
+const TEAM_COLS = [
+  { k:'name', l:'Time' },
+  { k:'sourceLeague', l:'Liga de origem' },
+  { k:'games', l:'J' },
+  { k:'cornersFor', l:'Esc. pró' },
+  { k:'cornersAgainst', l:'Esc. contra' },
+  { k:'homeFor', l:'Casa' },
+  { k:'awayFor', l:'Fora' },
+  { k:'goalsFor', l:'Gols pró' },
+  { k:'goalsAgainst', l:'Gols contra' }
+];
+
+function renderTeam(){
+  const box = $('#teamCard'), foot = $('#teamFoot');
+  if (!box) return;
+
+  if (state.teamLoading){
+    box.innerHTML = '<div class="empty"><span class="big">⏳</span>Calculando médias por time no servidor…</div>';
+    if (foot) foot.textContent = '';
+    chartHide();
+    return;
+  }
+  if (state.teamErr){
+    box.innerHTML = `<div class="notice err" style="margin:12px">⚠️ ${state.teamErr}</div>`;
+    if (foot) foot.textContent = '';
+    chartHide();
+    return;
+  }
+  const d = state.teamAvg;
+  if (!d || !Array.isArray(d.teams) || !d.teams.length){
+    box.innerHTML = '<div class="empty"><span class="big">📊</span>Sem jogos encerrados suficientes para calcular médias por time.</div>';
+    if (foot) foot.textContent = '';
+    chartHide();
+    return;
+  }
+
+  const colors = chartColorMap();
+  const sel = resolvedChartTeams();
+  const rows = d.teams.slice().sort((a, b) => {
+    const k = state.sortKey, dir = state.sortDir; // dir: -1 = decrescente, 1 = crescente
+    if (k === 'name' || k === 'sourceLeague'){
+      const av = (k === 'name') ? a.name : teamSourceOf(a).league;
+      const bv = (k === 'name') ? b.name : teamSourceOf(b).league;
+      return dir * String(av || '').localeCompare(String(bv || ''));
+    }
+    const av = a[k] == null ? -1 : a[k];
+    const bv = b[k] == null ? -1 : b[k];
+    return dir * (av - bv);
+  });
+  const maxC = Math.max.apply(null, rows.map(r => r.cornersFor || 0).concat([1]));
+  const impCount = rows.filter(r => r.cornersFor != null).length;
+
+  /* ---------- agrupamento pela liga de origem ----------
+     A liga de origem já vem resolvida em cada time (servidor no modo proxy,
+     teamSourceOf na demonstração). Aqui só agrupamos — nada é recalculado.
+     `rows` continua na ordem definida pela coluna ordenada, então a
+     ordenação vale DENTRO de cada grupo. */
+  const UNKNOWN_KEY = 'zz:origem-desconhecida';
+  const groups = [];
+  const gindex = {};
+  rows.forEach((t, i) => {
+    const src = teamSourceOf(t);
+    const nm = String(src.league || '').trim();
+    const k = nm ? ('lg:' + lgaNorm(nm)) : UNKNOWN_KEY;
+    let g = gindex[k];
+    if (!g){
+      g = gindex[k] = { key:k, league:nm, flag: nm ? srcFlag(src) : '❔', country:src.country || '',
+        leagueAvgN:src.leagueAvgN || 0, leaguePerMatch:(src.leaguePerMatch == null ? null : src.leaguePerMatch),
+        min:src.min || minSamples(), usable:!!src.usable,
+        items:[], own:0, other:0, pooled:0, none:0, cornerGames:0 };
+      groups.push(g);
+    }
+    g.items.push({ t, i });
+    g[src.kind] = (g[src.kind] || 0) + 1;
+    g.cornerGames += (src.cornerGames || 0);
+    if ((src.leagueAvgN || 0) > g.leagueAvgN) g.leagueAvgN = src.leagueAvgN;
+    if (src.leaguePerMatch != null) g.leaguePerMatch = src.leaguePerMatch;
+    if (src.usable) g.usable = true;
+  });
+  // grupos por tamanho (maior primeiro), depois alfabético; "desconhecida" por último
+  groups.sort((a, b) => ((a.key === UNKNOWN_KEY) - (b.key === UNKNOWN_KEY))
+    || (b.items.length - a.items.length)
+    || String(a.league || 'zz').localeCompare(String(b.league || 'zz')));
+
+  const rowHTML = (t, pos) => {
+    const tid = String(t.id);
+    const inChart = sel.indexOf(tid) >= 0;
+    const src = teamSourceOf(t);
+    const srcTip = `Origem da média de escanteios: ${src.league || 'sem liga de origem'}` +
+      `${src.leagueAvgN ? ' · ' + src.leagueAvgN + ' partidas na amostra da liga' : ''}` +
+      `${src.cornerGames ? ' · ' + src.cornerGames + ' jogo(s) do time com escanteio' : ''}`;
+    return `<tr data-team="${tid}" class="${inChart ? 'inchart' : ''}" style="--c:${colors[tid] || '#5f7699'}">
+      <td class="team"><span class="pos">${pos}</span>${badgeHTML(t)}<span class="nm">${t.name}</span>${inChart ? ' <span style="color:var(--acc);font-size:10px">📈</span>' : ''}</td>
+      <td class="lgcell" title="${srcTip}">${srcFlag(src)} <span class="lgnm">${src.league || '—'}</span> ${kindBadge(src)}</td>
+      <td>${t.games}</td>
+      <td class="hi" style="background:linear-gradient(90deg,transparent,rgba(255,176,32,${(((t.cornersFor||0) / maxC) * 0.28).toFixed(2)}))">${t.cornersFor == null ? '—' : t.cornersFor}${t.cornersSource ? ' <span class="imgbadge" title="Valor vindo da média da liga de origem — veja a coluna Liga de origem">≈</span>' : ''}</td>
+      <td>${t.cornersAgainst == null ? '—' : t.cornersAgainst}</td>
+      <td>${t.homeFor == null ? '—' : t.homeFor}</td>
+      <td>${t.awayFor == null ? '—' : t.awayFor}</td>
+      <td>${t.goalsFor}</td>
+      <td>${t.goalsAgainst}</td>
+    </tr>`;
+  };
+  /* ---------- linha de totais do grupo ----------
+     Somas onde somar faz sentido (jogos, escanteios, gols — reconstruídos a
+     partir de média × amostra, nunca estimados) e MÉDIA rotulada onde a soma
+     não significa nada (casa/fora, que não têm contagem de amostra exposta).
+     Cada célula traz no tooltip exatamente o que foi calculado. */
+  const r1 = (n) => Math.round(n * 10) / 10;
+  /* Agrega uma lista de times { t } — usada tanto pelo grupo quanto pelo total
+     geral, para as duas linhas nunca divergirem de regra.
+     SOMAS: jogos e gols (média × jogos) e escanteios (média × amostra com
+     estatística), sempre reconstruídas de contagens — nada é estimado.
+     MÉDIAS: casa/fora são média SIMPLES entre os times que jogaram naquele
+     lado; escanteios por jogo do bloco é média PONDERADA (total ÷ partidas com
+     estatística), nunca média de médias. */
+  const totalsCalc = (items) => {
+    const tot = { games:0, cs:0, cf:0, ca:0, withC:0, gf:0, ga:0, homeN:0, homeSum:0, awayN:0, awaySum:0 };
+    items.forEach(it => {
+      const t = it.t;
+      const gm = t.games || 0;
+      tot.games += gm;
+      tot.gf += (t.goalsFor || 0) * gm;
+      tot.ga += (t.goalsAgainst || 0) * gm;
+      if (t.cornersFor != null){
+        const cs = t.cornerSamples || 0;
+        tot.cs += cs; tot.cf += t.cornersFor * cs; tot.ca += (t.cornersAgainst || 0) * cs; tot.withC++;
+      }
+      if (t.homeFor != null){ tot.homeN++; tot.homeSum += t.homeFor; }
+      if (t.awayFor != null){ tot.awayN++; tot.awaySum += t.awayFor; }
+    });
+    tot.teams = items.length;
+    tot.sumCF = Math.round(tot.cf); tot.sumCA = Math.round(tot.ca);
+    tot.sumGF = Math.round(tot.gf); tot.sumGA = Math.round(tot.ga);
+    tot.mCF = tot.cs ? r1(tot.cf / tot.cs) : null; tot.mCA = tot.cs ? r1(tot.ca / tot.cs) : null;
+    tot.mH = tot.homeN ? r1(tot.homeSum / tot.homeN) : null;
+    tot.mA = tot.awayN ? r1(tot.awaySum / tot.awayN) : null;
+    tot.mGF = tot.games ? r1(tot.gf / tot.games) : null; tot.mGA = tot.games ? r1(tot.ga / tot.games) : null;
+    return tot;
+  };
+  /* escopo: 'grupo' (uma liga de origem) ou 'geral' (todos os grupos) */
+  const totalsRow = (items, opt) => {
+    const o = opt || {};
+    const scope = o.scope || 'grupo';
+    const grand = scope === 'geral';
+    const tot = totalsCalc(items);
+    const what = grand ? 'todos os grupos' : `o grupo ${o.label || 'sem liga de origem'}`;
+    const tJ = `Soma de ${tot.games} jogo(s) dos ${tot.teams} time(s) de ${what}`;
+    const tCF = tot.cs ? `Soma de ${tot.sumCF} escanteios a favor · média ponderada ${tot.mCF}/jogo · base ${tot.cs} partida(s) com estatística`
+      : 'Nenhum time de ' + what + ' tem escanteio com fonte — sem número para somar';
+    const tCA = tot.cs ? `Soma de ${tot.sumCA} escanteios contra · média ponderada ${tot.mCA}/jogo · base ${tot.cs} partida(s) com estatística`
+      : 'Nenhum time de ' + what + ' tem escanteio com fonte — sem número para somar';
+    const tH = tot.mH == null ? `Nenhum time de ${what} jogou em casa na amostra`
+      : `Média simples de ${tot.homeN} time(s) de ${what} com jogos em casa · ${tot.mH} escanteios a favor por jogo`;
+    const tA = tot.mA == null ? `Nenhum time de ${what} jogou fora na amostra`
+      : `Média simples de ${tot.awayN} time(s) de ${what} com jogos fora · ${tot.mA} escanteios a favor por jogo`;
+    const tGF = `Soma de ${tot.sumGF} gol(s) marcados por ${what} · ${tot.mGF}/jogo`;
+    const tGA = `Soma de ${tot.sumGA} gol(s) sofridos por ${what} · ${tot.mGA}/jogo`;
+    const num = (v, cls, tip, mean) => `<td class="${cls || ''}" title="${tip}">${v == null ? '—' : ((mean ? '<i class="m">média</i>' : '') + v)}</td>`;
+    const lbl = grand
+      ? `Σ Total geral · ${tot.teams} time(s) em ${o.groups || 0} grupo(s)`
+      : `Σ Totais · ${tot.teams} time(s)`;
+    const lblTip = grand
+      ? `Total de todos os grupos · somas de ${tot.games} jogo(s), escanteios e gols; casa/fora são médias simples`
+      : `Totais do grupo ${o.label || 'sem liga de origem'}`;
+    return `<tr class="${grand ? 'grandtotal' : 'grouptotal'}" data-gtot="1"${grand ? ' data-grandtotal="1"' : ''}${grand ? '' : ` data-grp="${o.key}"`}>
+      <td class="sumlbl" title="${lblTip}">${lbl}</td>
+      <td title="${tot.withC} de ${tot.teams} time(s) de ${what} têm escanteio com fonte"><span class="lgsub">${tot.withC}/${tot.teams} com escanteio</span></td>
+      ${num(tot.games, '', tJ)}
+      ${num(tot.cs ? tot.sumCF : null, 'hi', tCF)}
+      ${num(tot.cs ? tot.sumCA : null, '', tCA)}
+      ${num(tot.mH, '', tH, true)}
+      ${num(tot.mA, '', tA, true)}
+      ${num(tot.sumGF, '', tGF)}
+      ${num(tot.sumGA, '', tGA)}
+    </tr>`;
+  };
+
+  const parts = [];
+  groups.forEach(g => {
+    const collapsed = !!state.collapsed[g.key];
+    const label = g.league || 'Origem desconhecida';
+    const meta = g.league
+      ? (g.leagueAvgN ? 'amostra da liga n=' + g.leagueAvgN : 'liga sem amostra') +
+        (g.leaguePerMatch != null ? ' · ' + g.leaguePerMatch + '/jogo' : '') +
+        (g.usable ? '' : ' · abaixo do mínimo de ' + g.min)
+      : 'estes times não têm liga de origem com média';
+    const gtip = `Liga de origem ${label}${g.country ? ' · ' + g.country : ''} · ${g.items.length} time(s)` +
+      (g.cornerGames ? ` · ${g.cornerGames} jogo(s) com escanteio no grupo` : '');
+    parts.push(`<tr class="grouphdr${collapsed ? ' collapsed' : ''}${g.league ? '' : ' unknown'}" data-grp="${g.key}" title="${gtip}">
+      <td colspan="${TEAM_COLS.length}"><div class="gwrap">
+        <span class="caret">${collapsed ? '▶' : '▼'}</span>
+        <span>${g.flag}</span><span class="gname">${label}</span>
+        <span class="gcnt">${g.items.length} time(s)</span>
+        ${(g.other + g.pooled) ? `<span class="imgbadge alt" title="Times deste grupo cuja média não veio da própria liga">${g.other + g.pooled} de outra competição</span>` : ''}
+        ${g.own ? `<span class="imgbadge" title="Times cuja média veio da própria liga">${g.own} da própria liga</span>` : ''}
+        ${g.none ? `<span class="imgbadge off" title="Times sem média utilizável — escanteios em branco">${g.none} sem média</span>` : ''}
+        <span class="gmeta">${meta}</span>
+      </div></td></tr>`);
+    parts.push(totalsRow(g.items, { scope:'grupo', key:g.key, label:g.league }));
+    if (!collapsed) g.items.forEach((it, j) => parts.push(rowHTML(it.t, j + 1)));
+  });
+
+  /* ---------- total geral: somado dos DADOS BRUTOS (rows), não das linhas
+     de grupo — assim continua correto mesmo com um grupo recolhido. ---------- */
+  const grandItems = rows.map((t) => ({ t }));
+  /* modelo exato desta renderização: o CSV lê daqui, então nunca diverge da tela */
+  state.teamModel = { src:d, rows, groups, grandItems, calc: totalsCalc, days:d.days || null };
+  const grandRow = grandItems.length ? totalsRow(grandItems, { scope:'geral', groups:groups.length }) : '';
+
+  box.innerHTML = '<div class="tblwrap"><table class="tavg"><thead><tr>' +
+    TEAM_COLS.map(c => `<th class="${state.sortKey === c.k ? 'on' : ''}" data-sort="${c.k}">${c.l}` +
+      `${state.sortKey === c.k ? (state.sortDir < 0 ? ' ▼' : ' ▲') : ''}</th>`).join('') +
+    '</tr></thead><tbody>' +
+    parts.join('') + grandRow +
+    '</tbody></table></div>';
+
+  $$('[data-sort]', box).forEach(th => th.onclick = () => {
+    const k = th.dataset.sort;
+    if (state.sortKey === k) state.sortDir = -state.sortDir;
+    else { state.sortKey = k; state.sortDir = (k === 'name') ? 1 : -1; }
+    renderTeam();
+  });
+
+  // clicar numa linha liga/desliga o time no gráfico de evolução
+  $$('[data-team]', box).forEach(tr => tr.onclick = () => toggleChartTeam(tr.dataset.team));
+
+  // clicar no cabeçalho do grupo recolhe/expande só aquela liga de origem
+  $$('[data-grp]', box).forEach(tr => tr.onclick = (e) => {
+    e.stopPropagation();
+    const k = tr.dataset.grp;
+    state.collapsed[k] = !state.collapsed[k];
+    renderTeam();
+  });
+
+  renderChartChips();
+  drawTeamChart();
+
+  const kinds = { own:0, other:0, pooled:0, none:0 };
+  rows.forEach(t => { const k = teamSourceOf(t).kind; kinds[k] = (kinds[k] || 0) + 1; });
+  if (foot){
+    const ls = lgaStats();
+    const upd = d.generated ? new Date(d.generated).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }) : null;
+    foot.innerHTML = `Origem das médias: <b>${kinds.own}</b> na mesma liga · <b>${kinds.other}</b> em outra competição · ` +
+      `<b>${kinds.pooled}</b> em várias · <b>${kinds.none}</b> sem média. ` +
+      `A coluna <b>Liga de origem</b> mostra a liga que forneceu o número e o tamanho da amostra (n = partidas com estatística real). ` +
+      `A tabela está <b>agrupada pela liga de origem</b> (${groups.length} grupo(s)); clique no cabeçalho de um grupo para recolhê-lo — a ordenação vale dentro de cada grupo.<br>` +
+      `Cada grupo tem uma linha <b>Σ Totais</b> e a tabela fecha com <b>Σ Total geral</b> (todos os grupos): são <b>somas</b> de jogos, escanteios e gols (reconstruídas de média × amostra, nada estimado) e <b>médias rotuladas</b> só em Casa/Fora, que não expõem contagem de amostra — casa/fora é média simples entre os times, escanteios por jogo é média ponderada (total ÷ partidas). O tooltip de cada célula diz exatamente o que foi calculado; as linhas continuam visíveis mesmo com o grupo recolhido. A tabela inteira (grupos, origem e totais) pode ser baixada em <b>CSV</b> pelo botão ⤓ CSV.<br>` +
+      `Amostra: <b>${d.sampled}</b> jogos encerrados` +
+      `${d.days ? ` (últimos ${d.days} dias)` : ''} · escanteios <b>estimados</b> pela média REAL da liga em cache · ` +
+      `gols ${d.realGoals ? '<b>reais</b>' : 'simulados'}${d.local ? ' · calculado localmente' : ' · calculado no servidor (proxy)'}` +
+      `${upd ? ` · atualizado ${upd}` : ''}.<br>` +
+      `<span class="lgind">🧮 Médias por liga no cache local: <b>${ls.usable}</b> utilizável(is) · amostra ${ls.samples} partidas reais` +
+      `${d.minLeagueSamples ? ` · mínimo ${d.minLeagueSamples} por liga` : ''}</span>` +
+      (ls.needMore ? `<br><span class="lgind">⏳ Faltam partidas com estatística real em <b>${ls.needMore}</b> liga(s): ` +
+        ls.missing.slice(0, 3).map(x => `${x.name} <b>+${x.need}</b>`).join(' · ') + `. Ao atingir o mínimo, elas passam a preencher sozinhas.</span>` : '') +
+      `<br><span class="lgind">Regra do preenchimento: escanteio ausente só recebe a média da liga se ela tiver a amostra mínima; caso contrário fica <b>—</b> (nunca um número inventado).</span>`;
+  }
+}
+
+/* Médias calculadas no navegador — usadas apenas na fonte simulada. */
+function localTeamAvg(){
+  const agg = {};
+  const dates = [];
+  MATCHES.forEach(m => {
+    if (m.status !== 'finished') return;
+    const dt = m.date || dayOffset(0);
+    if (dates.indexOf(dt) < 0) dates.push(dt);
+    const sides = [
+      { t:m.home, c:Array.isArray(m.stats.corners) ? m.stats.corners[0] : null, cc:Array.isArray(m.stats.corners) ? m.stats.corners[1] : null, gf:m.score[0], gc:m.score[1], home:true },
+      { t:m.away, c:Array.isArray(m.stats.corners) ? m.stats.corners[1] : null, cc:Array.isArray(m.stats.corners) ? m.stats.corners[0] : null, gf:m.score[1], gc:m.score[0], home:false }
+    ];
+    sides.forEach(s => {
+      const key = 'n' + s.t.name;
+      const a = agg[key] || (agg[key] = { id:key, name:s.t.name, abbr:s.t.abbr, badge:null, league:m.leagueName,
+        games:0, cf:0, ca:0, gf:0, ga:0, hg:0, hf:0, ag:0, af:0, cn:0, perDay:{}, fromApi:false, lg:{} });
+      a.games++; a.gf += s.gf; a.ga += s.gc;
+      if (m.source !== 'demo') a.fromApi = true;
+      if (s.c != null){
+        a.cn++; a.cf += s.c; a.ca += s.cc;
+        if (s.home){ a.hg++; a.hf += s.c; } else { a.ag++; a.af += s.c; }
+      }
+      // mesma origem de liga que o proxy propaga, calculada localmente
+      const lk = m.league || ('n:' + m.leagueName);
+      const le = a.lg[lk] || (a.lg[lk] = { id:m.league || null, name:m.leagueName, flag:m.flag || '', country:'', games:0, cn:0 });
+      le.games++;
+      if (s.c != null) le.cn++;
+      const pd = a.perDay[dt] || (a.perDay[dt] = { cf:0, ca:0, gf:0, ga:0, n:0, cn:0 });
+      pd.gf += s.gf; pd.ga += s.gc; pd.n++;
+      if (s.c != null){ pd.cf += s.c; pd.ca += s.cc; pd.cn++; }
+    });
+  });
+  dates.sort();
+  const r1 = n => Math.round(n * 10) / 10;
+  const seriesOf = a => {
+    const out = []; let cf=0, ca=0, gf=0, ga=0, n=0, cn=0;
+    dates.forEach(dt => { const pd = a.perDay[dt];
+      if (pd){ cf+=pd.cf; ca+=pd.ca; gf+=pd.gf; ga+=pd.ga; n+=pd.n; cn+=pd.cn; }
+      out.push(n ? { cf:cn?r1(cf/cn):null, ca:cn?r1(ca/cn):null, gf:r1(gf/n), ga:r1(ga/n), n, cn } : null); });
+    return out;
+  };
+  const lgListOf = a => Object.keys(a.lg).map(k => a.lg[k]);
+  const teams = Object.keys(agg).map(k => {
+    const a = agg[k];
+    const lgs = lgListOf(a).sort((x, y) => (y.games - x.games) || (y.cn - x.cn));
+    return { id:a.id, name:a.name, abbr:a.abbr, badge:a.badge, league:a.league, games:a.games,
+      cornersFor:a.cn ? r1(a.cf / a.cn) : null, cornersAgainst:a.cn ? r1(a.ca / a.cn) : null,
+      cornerSamples:a.cn, cornersSource: a.cn ? 'league' : null,
+      leagues: lgs, multiLeague: lgs.length > 1,
+      homeFor:a.hg ? r1(a.hf / a.hg) : null, awayFor:a.ag ? r1(a.af / a.ag) : null,
+      goalsFor:r1(a.gf / a.games), goalsAgainst:r1(a.ga / a.games) };
+  }).sort((x, y) => ((y.cornersFor || -1) - (x.cornersFor || -1)));
+  const series = Object.keys(agg).map(k => ({ id:agg[k].id, name:agg[k].name, abbr:agg[k].abbr, points:seriesOf(agg[k]) }))
+    .sort((x, y) => {
+      const tx = teams.find(t => t.id === x.id), ty = teams.find(t => t.id === y.id);
+      return (ty ? ty.cornersFor : 0) - (tx ? tx.cornersFor : 0);
+    }).slice(0, 15);
+  const anyApi = Object.keys(agg).some(k => agg[k].fromApi);
+  return { generated: Date.now(), days:null, labels:dates, sampled: MATCHES.filter(m => m.status === 'finished').length,
+    estimatedCorners:true, realGoals:anyApi, local:true, minLeagueSamples:minSamples(),
+    leagueAverages: lgaLoad().leagues, teams, series, seriesTeams: series.length,
+    cornersAvailable: teams.filter(t => t.cornersFor != null).length };
+}
+
+/* ============================================================
+   Gráfico de evolução das médias (canvas, sem dependência externa)
+   Cada ponto = média ACUMULADA do time até aquele dia da janela.
+   ============================================================ */
+const CHART_COLORS = ['#22e07a','#3b9dff','#8b5cf6','#ffb020','#f97316','#ef4444','#14b8a6','#eab308'];
+const CHART_METRIC_LABEL = { cf:'Escanteios a favor', ca:'Escanteios contra', gf:'Gols a favor' };
+
+function defaultChartTeams(d){
+  return ((d && d.series) || []).slice(0, 5).map(s => String(s.id));
+}
+function resolvedChartTeams(){
+  const d = state.teamAvg;
+  return state.chartTeams.length ? state.chartTeams : defaultChartTeams(d);
+}
+function chartColorMap(){
+  const d = state.teamAvg;
+  const sel = resolvedChartTeams();
+  const map = {};
+  let i = 0;
+  ((d && d.series) || []).forEach(s => {
+    const id = String(s.id);
+    if (sel.indexOf(id) >= 0) map[id] = CHART_COLORS[(i++) % CHART_COLORS.length];
+  });
+  return map;
+}
+function toggleChartTeam(id){
+  const d = state.teamAvg;
+  if (!d || !Array.isArray(d.series) || !d.series.some(s => String(s.id) === id)){
+    toast('Este time não tem série na janela atual');
+    return;
+  }
+  const i = state.chartTeams.indexOf(id);
+  if (i >= 0) state.chartTeams.splice(i, 1); else state.chartTeams.push(id);
+  renderTeam();
+}
+function chartHide(){
+  const cv = $('#teamChart'), empty = $('#teamChartEmpty'), chips = $('#chartChips'), cap = $('#chartCap');
+  if (cv) cv.style.display = 'none';
+  if (empty) empty.style.display = 'none';
+  if (chips) chips.innerHTML = '';
+  if (cap) cap.textContent = '';
+}
+function renderChartChips(){
+  const box = $('#chartChips');
+  if (!box) return;
+  const d = state.teamAvg;
+  if (!d || !Array.isArray(d.series) || !d.series.length){ box.innerHTML = ''; return; }
+  const colors = chartColorMap();
+  const metric = state.chartMetric || 'cf';
+  box.innerHTML = d.series.map(s => {
+    const id = String(s.id);
+    const on = state.chartTeams.indexOf(id) >= 0;
+    const last = s.points.filter(Boolean).pop();
+    const val = last ? last[metric] : null;
+    return `<button class="cchip ${on ? 'on' : ''}" data-chip="${id}" style="--c:${on ? (colors[id] || '#22e07a') : '#5f7699'}">` +
+      `<span class="d"></span>${s.abbr || s.name}${val != null ? ' ' + val : ''}</button>`;
+  }).join('');
+  $$('[data-chip]', box).forEach(b => b.onclick = () => toggleChartTeam(b.dataset.chip));
+}
+function drawTeamChart(){
+  const cv = $('#teamChart'), empty = $('#teamChartEmpty'), cap = $('#chartCap');
+  if (!cv) return;
+  if (state.teamLoading || state.teamErr){ chartHide(); return; }
+
+  const d = state.teamAvg;
+  const labels = (d && d.labels) || [];
+  const series = (d && d.series) || [];
+  const sel = resolvedChartTeams();
+  const metric = state.chartMetric || 'cf';
+  const selSeries = series.filter(s => sel.indexOf(String(s.id)) >= 0);
+  const hasData = labels.length > 1 && selSeries.some(s => s.points.some(p => p));
+
+  if (!hasData){
+    cv.style.display = 'none';
+    if (empty){
+      empty.style.display = 'block';
+      empty.textContent = (labels.length <= 1)
+        ? 'Janela curta demais para um gráfico de evolução — aumente os dias da amostra.'
+        : 'Selecione ao menos um time com jogos na janela.';
+    }
+    if (cap) cap.textContent = '';
+    return;
+  }
+  cv.style.display = 'block';
+  if (empty) empty.style.display = 'none';
+
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth || 320, h = 190;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const padL = 32, padR = 8, padT = 10, padB = 22;
+  const iw = w - padL - padR, ih = h - padT - padB;
+
+  const vals = [];
+  selSeries.forEach(s => s.points.forEach(p => { if (p) vals.push(p[metric]); }));
+  let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+  if (!isFinite(min) || !isFinite(max)){ min = 0; max = 1; }
+  if (max - min < 1){ const m = (max + min) / 2; min = Math.max(0, m - 0.5); max = m + 0.5; }
+  const padv = (max - min) * 0.12;
+  min = Math.max(0, min - padv); max = max + padv;
+
+  const X = i => padL + (labels.length === 1 ? iw / 2 : (iw / (labels.length - 1)) * i);
+  const Y = v => padT + ih - ((v - min) / (max - min)) * ih;
+
+  ctx.strokeStyle = 'rgba(47,67,96,.55)'; ctx.lineWidth = 1;
+  ctx.fillStyle = '#8ba0be'; ctx.font = '9px -apple-system,BlinkMacSystemFont,sans-serif';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++){
+    const v = min + (max - min) * (i / 4), y = Y(v);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillText(v.toFixed(1), padL - 5, y);
+  }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  labels.forEach((dt, i) => ctx.fillText(brDate(dt), X(i), padT + ih + 6));
+
+  const colors = chartColorMap();
+  selSeries.forEach(s => {
+    const color = colors[String(s.id)] || '#5f7699';
+    ctx.beginPath();
+    let started = false;
+    s.points.forEach((p, i) => {
+      if (!p){ started = false; return; }
+      const x = X(i), y = Y(p[metric]);
+      if (!started){ ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+    ctx.shadowColor = color; ctx.shadowBlur = 7; ctx.stroke(); ctx.shadowBlur = 0;
+    s.points.forEach((p, i) => {
+      if (!p) return;
+      ctx.beginPath(); ctx.arc(X(i), Y(p[metric]), 2.4, 0, Math.PI * 2);
+      ctx.fillStyle = color; ctx.fill();
+    });
+  });
+
+  if (cap) cap.textContent = `${CHART_METRIC_LABEL[metric]} · média acumulada até cada dia · ${labels.length} dias na janela`;
+}
+
+function loadTeamAvg(){
+  if (CFG.provider === 'proxy'){
+    const base = proxyBase();
+    if (!base){ state.teamAvg = null; state.teamErr = 'Proxy não configurado.'; renderTeam(); return Promise.resolve(); }
+    state.teamLoading = true; state.teamErr = null; renderTeam();
+    return fetchJson(base + '/derive/teamavg?days=7&min=' + minSamples()).then(p => {
+      state.teamLoading = false;
+      if (!p || !Array.isArray(p.teams)) throw new Error('Resposta inesperada do proxy');
+      lgaMerge(p.leagueAverages);
+      state.teamAvg = p;
+      if (!state.chartTeams.length) state.chartTeams = defaultChartTeams(p);
+      renderTeam();
+      return p;
+    }).catch(err => {
+      state.teamLoading = false;
+      state.teamErr = (err && err.status === 404)
+        ? 'Seu proxy é anterior à rota /derive/teamavg — republique cornerpro-proxy.js.'
+        : ((err && err.message) ? err.message : String(err));
+      renderTeam();
+      return null;
+    });
+  }
+  // Fonte simulada: agrega localmente o que já está em memória.
+  state.teamAvg = localTeamAvg();
+  state.teamErr = null;
+  if (!state.chartTeams.length) state.chartTeams = defaultChartTeams(state.teamAvg);
+  renderTeam();
+  return Promise.resolve(state.teamAvg);
+}
+
+/* ---------- Exportação CSV da tabela de médias ----------
+   Usa o modelo da renderização (state.teamModel) — mesmos grupos, mesma ordem
+   e mesmas regras dos totais. Sempre que possível o número vem de contagem
+   real (média × amostra); quando não há fonte, a célula vai VAZIA (nunca 0).
+   Formato pt-BR: separador ';', decimal com vírgula, BOM UTF-8 (abre no Excel). */
+function csvCell(v){
+  /* sempre entre aspas, aspas internas duplicadas e quebras de linha
+     normalizadas para espaco (na tela a quebra ja aparece como espaco,
+     entao o arquivo continua igual ao que o painel mostra). */
+  const str = (v == null) ? '' : String(v).replace(/\r\n|\r|\n/g, ' ');
+  return '"' + str.replace(/"/g, '""') + '"';
+}
+function brNum(v){ return (v == null || v === '') ? '' : String(v).replace('.', ','); }
+function kindText(src){
+  const n = (src && src.leagueAvgN) || 0;
+  if (!src || src.kind === 'none') return 'sem média';
+  if (!src.usable) return 'abaixo do mínimo · n=' + n;
+  if (src.kind === 'own') return 'mesma liga · n=' + n;
+  if (src.kind === 'other') return 'outra liga · n=' + n;
+  return (src.fromLeagues || []).length + ' ligas · n=' + n;
+}
+const CSV_HEAD = ['Tipo','Grupo (liga de origem)','#','Time','Origem do valor','J','Esc. pró','Esc. contra',
+  'Casa (média simples)','Fora (média simples)','Gols pró','Gols contra'];
+function teamCsv(){
+  const d = state.teamAvg;
+  if (!d || !Array.isArray(d.teams) || !d.teams.length) return null;
+  let M = state.teamModel;
+  if (!M || M.src !== d){ renderTeam(); M = state.teamModel; }
+  if (!M || !M.rows || !M.rows.length) return null;
+  const calc = M.calc;
+  const lines = [CSV_HEAD.map(csvCell).join(';')];
+  (M.groups || []).forEach(g => {
+    const tot = calc(g.items);
+    const gname = g.league || 'Origem desconhecida';
+    lines.push(['Grupo', gname, '', g.items.length + ' time(s)', tot.withC + '/' + tot.teams + ' com escanteio',
+      '', '', '', '', '', '', ''].map(csvCell).join(';'));
+    g.items.forEach((it, j) => {
+      const t = it.t; const src = teamSourceOf(t);
+      lines.push(['Time', gname, j + 1, t.name, kindText(src),
+        t.games, brNum(t.cornersFor), brNum(t.cornersAgainst), brNum(t.homeFor), brNum(t.awayFor),
+        brNum(t.goalsFor), brNum(t.goalsAgainst)].map(csvCell).join(';'));
+    });
+    lines.push(['Total do grupo', gname, '', g.items.length + ' time(s)', tot.withC + '/' + tot.teams + ' com escanteio',
+      tot.games, tot.cs ? tot.sumCF : '', tot.cs ? tot.sumCA : '',
+      brNum(tot.mH), brNum(tot.mA), tot.sumGF, tot.sumGA].map(csvCell).join(';'));
+  });
+  const G = calc(M.grandItems);
+  lines.push(['Total geral', 'Todos os grupos (' + (M.groups || []).length + ')', '', M.rows.length + ' time(s)',
+    G.withC + '/' + G.teams + ' com escanteio', G.games, G.cs ? G.sumCF : '', G.cs ? G.sumCA : '',
+    brNum(G.mH), brNum(G.mA), G.sumGF, G.sumGA].map(csvCell).join(';'));
+  return '\uFEFF' + lines.join('\r\n') + '\r\n';
+}
+function exportTeamCsv(){
+  const csv = teamCsv();
+  if (!csv){ toast('Sem médias por time para exportar'); return null; }
+  const fname = 'medias-por-time-' + dayOffset(0) + '.csv';
+  try {
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 0);
+    toast('CSV gerado: ' + fname);
+  } catch(e){ toast('Download indisponível neste navegador — CSV montado em memória'); }
+  return csv;
+}
+
+/* ---------- Exportação CSV do ranking ----------
+   Lê do mesmo modelo da renderização (state.rankModel): mesma ordem, mesmos
+   jogos e mesma regra — sem fonte de escanteio a célula vai VAZIA (nunca 0).
+   Formato pt-BR: separador ';', decimal com vírgula, BOM UTF-8. */
+const RANK_CSV_HEAD = ['Posição','Jogo','Liga','Situação','Escanteios','Base'];
+function rankCsv(){
+  let M = state.rankModel;
+  if (!M) { M = rankModel(); state.rankModel = M; }
+  if (!M.rows.length) return null;
+  const lines = [RANK_CSV_HEAD.map(csvCell).join(';')];
+  M.rows.forEach((r, i) => {
+    lines.push([ r.corners == null ? '' : i + 1, r.label, r.league, rankStatus(r),
+      r.corners == null ? '' : brNum(r.corners),
+      r.corners == null ? 'sem estatística de escanteio — nada foi inventado' : 'contagem real de escanteios'
+    ].map(csvCell).join(';'));
+  });
+  lines.push(['Total (' + M.rows.length + ' jogo(s))', '', '',
+    M.withC + '/' + M.rows.length + ' com escanteio', M.total,
+    (M.source === 'servidor' ? 'ranking do servidor (proxy)' : 'ranking local') + (M.semFonte ? ' · ' + M.semFonte + ' sem fonte' : '')
+  ].map(csvCell).join(';'));
+  return '\uFEFF' + lines.join('\r\n') + '\r\n';
+}
+function exportRankCsv(){
+  const csv = rankCsv();
+  if (!csv){ toast('Sem ranking para exportar'); return null; }
+  const fname = 'ranking-escanteios-' + dayOffset(0) + '.csv';
+  try {
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 0);
+    toast('CSV gerado: ' + fname);
+  } catch(e){ toast('Download indisponível neste navegador — CSV montado em memória'); }
+  return csv;
+}
+
+/* ---------- Exportação CSV do confronto direto (H2H) ----------
+   Lê exatamente o que o cartão "Confronto direto (H2H)" desenha: o resumo
+   (vitórias/empates do cartão), a forma recente das duas equipes e os
+   confrontos reais exibidos (o cartão mostra até 3). Sem resumo de H2H o
+   exportador avisa e NÃO gera arquivo vazio; o botão fica desabilitado.
+   Formato pt-BR: separador ';', BOM UTF-8, campos entre aspas. */
+function brDateFull(iso){
+  if (!iso) return '';
+  const p = String(iso).slice(0,10).split('-');
+  return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : String(iso);
+}
+function slugTeam(s){
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'time';
+}
+const H2H_CSV_HEAD = ['Tipo','Data','Liga','Casa','Placar','Fora','Vitórias casa','Empates','Vitórias fora','Forma casa','Forma fora','Observação'];
+function h2hCsv(m){
+  m = m || (currentMatchId ? MATCHES.find(x => x.id === currentMatchId) : null);
+  if (!m || !Array.isArray(m.h2h) || m.h2h.length !== 3) return null;
+  const wh = m.h2h[0], dw = m.h2h[1], aw = m.h2h[2];
+  const real = m.h2hReal || null;
+  const last = (real && Array.isArray(real.last)) ? real.last.slice(0, 3) : [];
+  const formH = ((m.form && m.form.home) || []).join(' ');
+  const formA = ((m.form && m.form.away) || []).join(' ');
+  const meetings = (real && real.meetings != null) ? real.meetings : (wh + dw + aw);
+  const lines = [H2H_CSV_HEAD.map(csvCell).join(';')];
+  lines.push(['Resumo H2H','','',
+    m.home.name + ' (' + m.home.abbr + ')','', m.away.name + ' (' + m.away.abbr + ')',
+    brNum(wh), brNum(dw), brNum(aw), formH, formA,
+    meetings + ' confronto(s) no total · fonte: ' + (real ? 'proxy (confrontos reais, cache 6h)' : 'dados locais (simulados)')
+  ].map(csvCell).join(';'));
+  last.forEach(x => {
+    const sc = Array.isArray(x.score) ? x.score : [0,0];
+    lines.push(['Confronto', brDateFull(x.date), x.league || '', x.home,
+      sc[0] + '-' + sc[1], x.away, '', '', '', '', '',
+      'último confronto exibido no cartão H2H'
+    ].map(csvCell).join(';'));
+  });
+  if (!last.length){
+    lines.push(['Confronto','','','','','','','','','','',
+      real ? 'o proxy não devolveu lista de confrontos' : 'sem lista de confrontos reais nesta fonte'
+    ].map(csvCell).join(';'));
+  }
+  return '\uFEFF' + lines.join('\r\n') + '\r\n';
+}
+function exportH2hCsv(m){
+  m = m || (currentMatchId ? MATCHES.find(x => x.id === currentMatchId) : null);
+  const csv = h2hCsv(m);
+  if (!csv){ toast('Sem confronto direto para exportar'); return null; }
+  const fname = 'h2h-' + slugTeam(m.home.name) + '-x-' + slugTeam(m.away.name) + '-' + dayOffset(0) + '.csv';
+  try {
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 0);
+    toast('CSV gerado: ' + fname);
+  } catch(e){ toast('Download indisponível neste navegador — CSV montado em memória'); }
+  return csv;
+}
+
+/* ---------- Exportação CSV dos Momentos ----------
+   Lê exatamente a lista que o cartão "Momentos" desenha (m.events, na ordem do
+   painel: minuto, ícone, texto e equipe), sem refiltrar nem reordenar. Sem
+   eventos o exportador devolve null, avisa por toast e o botão fica
+   desabilitado — nada de arquivo vazio. Formato pt-BR: ';' + BOM UTF-8. */
+const MOM_CSV_HEAD = ['Ordem','Minuto','Ícone','Evento','Equipe','Lado','Observação'];
+function momentsCsv(m){
+  m = m || (currentMatchId ? MATCHES.find(x => x.id === currentMatchId) : null);
+  if (!m || !Array.isArray(m.events) || !m.events.length) return null;
+  const evs = m.events;
+  const lines = [MOM_CSV_HEAD.map(csvCell).join(';')];
+  evs.forEach((e, i) => {
+    const lado = e.side === 'home' ? 'Casa' : (e.side === 'away' ? 'Fora' : '');
+    const equipe = e.side === 'home' ? m.home.name : (e.side === 'away' ? m.away.name : '');
+    lines.push([ i + 1, e.min == null ? '' : e.min, e.ic || '', e.tx || '', equipe, lado,
+      'mesma linha do painel Momentos' ].map(csvCell).join(';'));
+  });
+  const casa = evs.filter(e => e.side === 'home').length, fora = evs.filter(e => e.side === 'away').length;
+  lines.push(['Total', evs.length + ' momento(s)', '', '', casa + ' casa · ' + fora + ' fora', '',
+    m.eventsReal ? 'fonte: proxy (eventos reais do painel)' : 'fonte: dados locais (simulados)'
+  ].map(csvCell).join(';'));
+  return '\uFEFF' + lines.join('\r\n') + '\r\n';
+}
+function exportMomentsCsv(m){
+  m = m || (currentMatchId ? MATCHES.find(x => x.id === currentMatchId) : null);
+  const csv = momentsCsv(m);
+  if (!csv){ toast('Sem momentos para exportar'); return null; }
+  const fname = 'momentos-' + slugTeam(m.home.name) + '-x-' + slugTeam(m.away.name) + '-' + dayOffset(0) + '.csv';
+  try {
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e){} }, 0);
+    toast('CSV gerado: ' + fname);
+  } catch(e){ toast('Download indisponível neste navegador — CSV montado em memória'); }
+  return csv;
+}
+
+/* ---------- Navegação ---------- */
+function showPage(p){
+  state.page = p;
+  $$('.page').forEach(el => el.classList.remove('on'));
+  $('#page'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('on');
+  $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.page===p));
+  if (p==='bots') renderBots();
+  if (p==='rank'){
+    renderRank();
+    if (state.rankView === 'team' && !state.teamAvg && !state.teamLoading) loadTeamAvg();
+  }
+  window.scrollTo(0,0);
+}
+
+/* ---------- Busca ---------- */
+function runSearch(q){
+  const out = $('#searchResults');
+  q = (q||'').trim().toLowerCase();
+  if (!q){ out.innerHTML=''; return; }
+  const teams = new Set(), leagues = new Set(), games = [];
+  MATCHES.forEach(m => {
+    [m.home.name, m.away.name].forEach(n => { if (n.toLowerCase().includes(q)) teams.add(n); });
+    if (m.leagueName.toLowerCase().includes(q)) leagues.add(m.leagueName);
+    if ((m.home.name+' '+m.away.name).toLowerCase().includes(q)) games.push(m);
+  });
+  let html = '';
+  games.forEach(m => html += `<div class="sres" data-goto="${m.id}"><div class="t">⚽ ${m.home.name} × ${m.away.name}</div><div class="s">${m.flag} ${m.leagueName} · ${m.status==='live'?'AO VIVO '+m.minute+"'":m.status==='finished'?'Encerrado':'Agendado'}</div></div>`);
+  leagues.forEach(l => html += `<div class="sres"><div class="t">🏆 ${l}</div><div class="s">Liga</div></div>`);
+  Array.from(teams).slice(0,6).forEach(t => html += `<div class="sres"><div class="t">👕 ${t}</div><div class="s">Time</div></div>`);
+  out.innerHTML = html || `<div class="empty" style="padding:18px">Nada encontrado para "${q}".</div>`;
+  $$('[data-goto]', out).forEach(el => el.onclick = () => { $('#searchOverlay').classList.remove('on'); openMatch(el.dataset.goto); });
+}
+
+/* ---------- Init ---------- */
+function init(){
+  // limpeza de segurança: se sobrou chave no navegador de uma versão anterior
+  if ('apiFootball' in CFG){
+    delete CFG.apiFootball; LS.set(CFG_KEY, CFG);
+    toast('🔒 Chave antiga apagada do navegador — revogue-a no painel da API.');
+  }
+
+  // tabs
+  $$('#tabs .tab').forEach(t => t.onclick = () => {
+    $$('#tabs .tab').forEach(x=>x.classList.remove('on')); t.classList.add('on');
+    state.tab = t.dataset.filter; renderLeagues(); renderList();
+  });
+
+  // nav bottom
+  $$('#nav button').forEach(b => b.onclick = () => showPage(b.dataset.page));
+
+  // açúcar: overlay
+  $('#openSearch').onclick = () => $('#searchOverlay').classList.add('on');
+  $('#closeSearch').onclick = () => $('#searchOverlay').classList.remove('on');
+  $('#searchInput').oninput = (e) => runSearch(e.target.value);
+  $('#searchOverlay').addEventListener('click', e => { if (e.target.id==='searchOverlay') e.currentTarget.classList.remove('on'); });
+
+  $('#openBot').onclick = () => $('#botOverlay').classList.add('on');
+  $('#closeBot').onclick = () => $('#botOverlay').classList.remove('on');
+  $('#botOverlay').addEventListener('click', e => { if (e.target.id==='botOverlay') e.currentTarget.classList.remove('on'); });
+
+  $('#saveBot').onclick = () => {
+    const name = $('#bName').value.trim() || 'Meu bot';
+    const crit = $('#bCrit').value;
+    const val = Math.max(1, parseInt($('#bVal').value) || 1);
+    const per = $('#bPer').value;
+    const perLab = per==='1h'?' (1º tempo)':per==='2h'?' (2º tempo)':'';
+    state.bots.push({ id:'b'+Date.now(), name, crit, val, per, label:`${CRIT_LABEL[crit]} ≥ ${val}${perLab}`, on:true, created:Date.now() });
+    LS.set('cp_bots', state.bots);
+    $('#botOverlay').classList.remove('on');
+    $('#bName').value='';
+    toast('Bot criado ✓');
+    if (state.page==='bots') renderBots();
+  };
+
+  // fonte de dados: abrir/selecionar/salvar
+  $('#openCfg').onclick = () => {
+    $('#cfgProvider').value = CFG.provider;
+    $('#cfgTsdb').value = CFG.tsdb || '3';
+    $('#cfgProxy').value = CFG.proxy || '';
+    $('#cfgMin').value = CFG.minSamples || '';
+    $('#cfgOverlay').classList.add('on');
+  };
+  $('#closeCfg').onclick = () => $('#cfgOverlay').classList.remove('on');
+  $('#cfgOverlay').addEventListener('click', e => { if (e.target.id === 'cfgOverlay') e.currentTarget.classList.remove('on'); });
+  $('#testCfg').onclick = () => {
+    const b = $('#cfgProxy').value.trim().replace(/\/+$/, '');
+    if (!b){ toast('Informe a URL do proxy primeiro'); return; }
+    toast('Testando o proxy…');
+    fetchJson(b + '/health').then(h => {
+      toast(h && h.configured ? '✅ Proxy ok — chave configurada no servidor' : '⚠️ O proxy respondeu, mas está sem a chave (secret APIFOOTBALL_KEY)');
+    }).catch(err => toast('❌ Proxy não respondeu: ' + (err && err.message ? err.message : err)));
+  };
+  $('#saveCfg').onclick = () => {
+    CFG.provider = $('#cfgProvider').value;
+    CFG.tsdb = $('#cfgTsdb').value.trim() || '3';
+    CFG.proxy = $('#cfgProxy').value.trim().replace(/\/+$/, '');
+    const mv = parseInt($('#cfgMin').value.trim(), 10);
+    CFG.minSamples = (isFinite(mv) && mv >= 1) ? Math.min(50, mv) : MIN_LG_SAMPLES;
+    state.teamAvg = null; state.teamErr = null; state.rankRemote = null; state.rankModel = null; state.chartTeams = [];
+    LS.set(CFG_KEY, CFG);
+    $('#cfgOverlay').classList.remove('on');
+    state.league = 'all'; state.tab = 'live';
+    $$('#tabs .tab').forEach((x,i) => x.classList.toggle('on', i === 0));
+    toast('Fonte salva: ' + prov().name + ' · amostra mínima ' + minSamples() + ' por liga');
+    loadMatches();
+  };
+  $('#refreshBtn').onclick = () => { toast('Atualizando…'); refreshData(); };
+
+  // métrica do gráfico de evolução
+  $$('#chartMetric button').forEach(b => b.onclick = () => {
+    $$('#chartMetric button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    state.chartMetric = b.dataset.metric;
+    renderChartChips();
+    drawTeamChart();
+  });
+  window.addEventListener('resize', () => { if (state.rankView === 'team') drawTeamChart(); });
+
+  // exportação CSV das médias por time (delegação: o botão é estático no HTML)
+  document.addEventListener('click', (e) => {
+    const b = e.target && e.target.closest ? e.target.closest('#exportTeamCsv, #exportRankCsv, #exportH2HCsv, #exportMomentsCsv') : null;
+    if (b){ e.preventDefault(); if (b.disabled) return;
+      if (b.id === 'exportRankCsv') exportRankCsv();
+      else if (b.id === 'exportH2HCsv'){ const mm = MATCHES.find(x => x.id === (b.dataset.h2h || currentMatchId)) || null; exportH2hCsv(mm); }
+      else if (b.id === 'exportMomentsCsv'){ const mm = MATCHES.find(x => x.id === (b.dataset.mom || currentMatchId)) || null; exportMomentsCsv(mm); }
+      else exportTeamCsv(); }
+  });
+
+  // alternância do ranking: por jogo / médias por time
+  $$('#rankSeg button').forEach(b => b.onclick = () => {
+    $$('#rankSeg button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    state.rankView = b.dataset.view;
+    $('#rankViewMatch').style.display = state.rankView === 'match' ? 'block' : 'none';
+    $('#rankViewTeam').style.display = state.rankView === 'team' ? 'block' : 'none';
+    if (state.rankView === 'team'){ if (!state.teamAvg && !state.teamLoading) loadTeamAvg(); else renderTeam(); }
+    else renderRank();
+  });
+
+  // atualização periódica: API real (estatísticas) ou simulação local
+  setInterval(() => {
+    if (CFG.provider !== 'demo'){
+      // Só o jogo aberto é atualizado: 1 chamada por janela de cache, não uma por jogo.
+      const open = (currentMatchId && $('#panel').classList.contains('open'))
+        ? MATCHES.find(m => m.id === currentMatchId) : null;
+      if (!open || open.source !== 'apifootball') return;
+      loadMatchDetail(open).then(() => {
+        if (currentMatchId === open.id && $('#panel').classList.contains('open')) openMatch(open.id, true);
+      });
+      return;
+    }
+    let changed = false;
+    MATCHES.forEach(m => {
+      if (m.status !== 'live') return;
+      if (Math.random() < 0.45){ m.minute = Math.min(90, m.minute + rnd(1,3)); changed = true; }
+      if (Math.random() < 0.13){ const s = rnd(0,1); m.score[s]++; changed = true;
+        m.events.push({ min:m.minute, ic:'⚽', tx:'Gol!', side: s? 'away':'home' });
+        m.events.sort((a,b)=>a.min-b.min); }
+      if (Math.random() < 0.22){ const s = rnd(0,1); m.stats.corners[s]++; m.cornersPeriod[s?'away':'home'][rnd(0,3)]++; changed = true; }
+      if (Math.random() < 0.1){ const s = rnd(0,1); m.stats.shots[s]++; changed = true; }
+      if (Math.random() < 0.08){ const s = rnd(0,1); m.stats.cards[s]++; m.events.push({min:m.minute, ic:'🟨', tx:'Cartão amarelo', side:s?'away':'home'}); changed = true; }
+      if (m.minute >= 90){ m.status='finished'; changed = true; }
+    });
+    if (changed){
+      renderKPIs();
+      if (state.page==='home'){ renderLeagues(); renderList(); }
+      if (state.page==='rank') renderRank();
+      if (state.page==='bots') renderBots();
+      if ($('#panel').classList.contains('open')){ const id = currentMatchId; if (id) openMatch(id, true); }
+    }
+  }, 5000);
+
+  // primeira carga
+  setStatus('loading', 'Carregando ' + prov().name + '…');
+  loadMatches().then(() => {
+    if (CFG.provider === 'demo') setStatus('mock', 'Modo demonstração · dados simulados');
+  }).catch(() => {});
+  setInterval(() => { if (CFG.provider !== 'demo' && MATCHES.length) refreshData(); }, 120000);
+}
+
+/* controla re-render do painel aberto sem rolar ao topo */
+let currentMatchId = null;
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
