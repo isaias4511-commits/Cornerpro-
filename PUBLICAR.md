@@ -15,7 +15,7 @@ Comandos prontos para copiar e colar. Marque cada item conforme concluir.
 | `remote origin` | `git@github.com:SEU-USUARIO/cornerpro.git` — **marcador, precisa trocar** |
 | `README.md` | 2.868 B · badge do CI na linha 3 |
 | `.gitignore` | 85 B — `node_modules/`, `.wrangler/`, `*.bak*`, `.bak*`, `e2e/min-e2e.log`, `.DS_Store`, `npm-debug.log*`, `*.log` |
-| `LICENSE` | **ausente** |
+| `LICENSE` | MIT (2026 · titular "CornerPro CI") |
 | CI | `.github/workflows/ci.yml` — jobs `unit` (jsdom) e `e2e` (Chromium) |
 | `package.json` | `private: true` · nome `cornerpro` 1.0.0 · scripts `test`, `test:harness`, `test:min`, `test:e2e` |
 | `package-lock.json` | presente (CI usa `npm ci`) |
@@ -38,7 +38,7 @@ Histórico:
 
 ## Fase 0 — Antes de publicar
 
-- [ ] **Definir a licença.** Não existe `LICENSE` nem `LICENSE.md`. O `package.json` tem `"private": true`, então "repo privado sem licença" é coerente; se o repo for público, adicione uma licença (ex.: MIT) antes do push.
+- [x] **Licença definida: MIT** em `LICENSE` (2026 · titular "CornerPro CI"), com `"license": "MIT"` no `package.json`. O `private: true` permanece, então o pacote não vai ao npm. Troque o titular por seu nome/org se quiser.
 - [ ] **Revisar fixtures com cara de segredo** em arquivos versionados (`wtest.mjs`, `wtest3.mjs` contêm strings de teste do tipo `SUPER-SECRET-...`). São inofensivas (testam mascaramento), mas scanners de segredo/push protection podem acusá-las — troque por algo explícito, ex.: `const SECRET = 'dummy-not-a-real-key';`
 - [ ] **Varredura de segredos por nome** — nenhum `.env*`, `*.pem`, `*.key`, `id_rsa*`, `*.p12`, `.dev.vars`, `credentials*` encontrado nos arquivos versionados.
 - [ ] **`.wrangler/` e os 20 `.bak*`** existem no diretório local mas estão no `.gitignore` — não sobem para o remoto. Nada a fazer.
