@@ -14,7 +14,7 @@ Comandos prontos para copiar e colar. Marque cada item conforme concluir.
 | Arquivos versionados | 85 |
 | `remote origin` | `git@github.com:SEU-USUARIO/cornerpro.git` — **marcador, precisa trocar** |
 | `README.md` | 2.868 B · badge do CI na linha 3 |
-| `.gitignore` | 79 B — `node_modules/`, `.wrangler/`, `*.bak*`, `.bak*`, `e2e/min-e2e.log`, `.DS_Store`, `npm-debug.log*` |
+| `.gitignore` | 85 B — `node_modules/`, `.wrangler/`, `*.bak*`, `.bak*`, `e2e/min-e2e.log`, `.DS_Store`, `npm-debug.log*`, `*.log` |
 | `LICENSE` | **ausente** |
 | CI | `.github/workflows/ci.yml` — jobs `unit` (jsdom) e `e2e` (Chromium) |
 | `package.json` | `private: true` · nome `cornerpro` 1.0.0 · scripts `test`, `test:harness`, `test:min`, `test:e2e` |
@@ -29,6 +29,8 @@ Histórico:
 6afdd6e docs: README com badge do CI e contrato do parametro min
 18a9160 CI: GitHub Actions (harness jsdom + contrato ?min= + e2e Chromium) e scripts npm test/test:e2e
 ```
+
+> Nota: as contagens de arquivos/commits desta tabela são o snapshot **anterior** a este arquivo; depois dele o repositório recebeu mais dois commits — `docs: checklist de publicação (PUBLICAR.md)` e a remoção dos 24 `run*.log`.
 
 > Nada foi publicado: não há conta, credencial válida nem remote real neste ambiente. Todo o resto é executado na máquina do usuário.
 
