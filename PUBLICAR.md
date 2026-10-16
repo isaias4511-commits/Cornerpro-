@@ -38,7 +38,7 @@ Histórico:
 
 ## Fase 0 — Antes de publicar
 
-- [x] **Licença definida: MIT** em `LICENSE` (2026 · titular "CornerPro CI"), com `"license": "MIT"` no `package.json`. O `private: true` permanece, então o pacote não vai ao npm. Troque o titular por seu nome/org se quiser.
+- [x] **Licença definida: MIT** em `LICENSE` (2026 · titular "CornerPro CI"), com `"license": "MIT"` e `"author": "CornerPro CI"` no `package.json`. O `private: true` permanece, então o pacote não vai ao npm. Troque o titular por seu nome/org se quiser.
 - [ ] **Revisar fixtures com cara de segredo** em arquivos versionados (`wtest.mjs`, `wtest3.mjs` contêm strings de teste do tipo `SUPER-SECRET-...`). São inofensivas (testam mascaramento), mas scanners de segredo/push protection podem acusá-las — troque por algo explícito, ex.: `const SECRET = 'dummy-not-a-real-key';`
 - [ ] **Varredura de segredos por nome** — nenhum `.env*`, `*.pem`, `*.key`, `id_rsa*`, `*.p12`, `.dev.vars`, `credentials*` encontrado nos arquivos versionados.
 - [ ] **`.wrangler/` e os 20 `.bak*`** existem no diretório local mas estão no `.gitignore` — não sobem para o remoto. Nada a fazer.

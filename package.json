@@ -13,5 +13,6 @@
     "jsdom": "^30.1.0",
     "playwright": "1.47.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "author": "CornerPro CI"
 }
