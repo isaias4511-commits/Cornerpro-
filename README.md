@@ -1,6 +1,6 @@
 # CornerPro
 
-[![CI](https://github.com/SEU-USUARIO/cornerpro/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU-USUARIO/cornerpro/actions/workflows/ci.yml)
+[![CI](https://github.com/isaias4511-commits/Cornerpro-/actions/workflows/ci.yml/badge.svg)](https://github.com/isaias4511-commits/Cornerpro-/actions/workflows/ci.yml)
 
 Painel de escanteios por partida, liga e time, com gráfico de **saldo acumulado por tempo**
 (escanteios pró − contra) por liga ou por time, filtro de período (Ambos / 1º tempo / 2º tempo),
@@ -63,12 +63,12 @@ npx wrangler deploy  # publica
 
 ## Ligar o badge ao seu repositório
 
-O badge acima usa `SEU-USUARIO/cornerpro` como marcador. Com o remote já configurado:
+O badge acima aponta para `isaias4511-commits/Cornerpro-`. Se o repositório mudar de dono ou de nome, atualize o remote e reescreva as URLs do badge:
 
 ```bash
 slug=$(git remote get-url origin | awk -F'[:/]' '{print $(NF-1)"/"$NF}' | sed 's/\.git$//')
-sed -i "s#SEU-USUARIO/cornerpro#$slug#g" README.md
+sed -i "s#isaias4511-commits/Cornerpro-#$slug#g" README.md
 ```
 
 O badge passa a renderizar depois do primeiro push, quando houver uma execução do workflow.
-Para fixar uma branch específica, acrescente `?branch=main` à URL do badge.
+Para fixar uma branch específica, acrescente `?branch=master` à URL do badge.
